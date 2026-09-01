@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-Contexto técnico para trabajar en este repositorio con Claude Code (o cualquier colaborador nuevo). Este documento es la fuente de verdad de las decisiones tomadas durante la fase de planeación — antes de escribir código, léelo completo.
+@AGENTS.md
+
+Contexto técnico para trabajar en este repositorio con Claude Code (o cualquier colaborador nuevo). Este documento es la fuente de verdad de las decisiones tomadas durante la fase de planeación — antes de escribir código, léelo completo. `AGENTS.md` (referenciado arriba) lo mantiene automáticamente `next dev` con reglas específicas de la versión de Next.js instalada — no editarlo a mano.
 
 ## Qué es esto
 
@@ -69,7 +71,22 @@ El mockup visual ya definió una dirección de diseño concreta — al construir
 
 ## Aclaración sobre archivos de bosquejo
 
-Si ves referencias a `index.html` o `main.dc.html` en discusiones previas del proyecto: eso es terminología del **Design Canvas** (herramienta de Claude para maquetar visualmente), **no** la estructura de este repositorio. Next.js no usa un `index.html` suelto — la página principal real será `app/page.tsx` (o equivalente) una vez que se scaffoldee el proyecto.
+Si ves referencias a `index.html` o `main.dc.html` en discusiones previas del proyecto: eso es terminología del **Design Canvas** (herramienta de Claude para maquetar visualmente), **no** la estructura de este repositorio. Next.js no usa un `index.html` suelto — la página principal real es [`app/page.tsx`](app/page.tsx).
+
+## Estado del scaffold de Next.js (2026-08-31)
+
+Ya está armado y verificado corriendo contra el Supabase real:
+
+- Next.js 16 (App Router, TypeScript, Turbopack) + Tailwind CSS v4.
+- `@supabase/ssr` + `@supabase/supabase-js`: [`lib/supabase/client.ts`](lib/supabase/client.ts) (browser), [`lib/supabase/server.ts`](lib/supabase/server.ts) (Server Components), [`lib/supabase/middleware.ts`](lib/supabase/middleware.ts) + [`middleware.ts`](middleware.ts) (refresco de sesión).
+- [`lib/supabase/database.types.ts`](lib/supabase/database.types.ts): tipos generados desde el esquema real (`generate_typescript_types`). Regenerar cada vez que cambie el esquema.
+- Tokens de diseño y tipografías (Fraunces/Work Sans/IBM Plex Mono) aplicados en [`app/layout.tsx`](app/layout.tsx) y [`app/globals.css`](app/globals.css) — los valores de color son un punto de partida razonable siguiendo la dirección de CLAUDE.md, **no** son los valores exactos del mockup (que vive fuera del repo); ajustar cuando se porte el diseño real.
+- `.env.local` (no versionado) con las credenciales del proyecto `redes-hayesperanza`; `.env.example` versionado como plantilla.
+- Probado en el navegador en modo claro y oscuro: la página confirma conexión real a Supabase ("Supabase: conectado ✓").
+
+Para correr localmente: `npm install`, copiar `.env.example` a `.env.local` con las credenciales reales (pedirlas al admin del proyecto Supabase), `npm run dev`.
+
+Nota de entorno: en esta máquina, `npm install` requiere `--ignore-scripts` por una restricción de seguridad en `~/.npmrc` (`allow-scripts` limitado a paquetes específicos) — sin esa bandera, `npm install` falla con `EALLOWSCRIPTS`.
 
 ## Pendiente de decidir (no asumir, preguntar al equipo)
 

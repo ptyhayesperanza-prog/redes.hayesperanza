@@ -2,9 +2,19 @@
 
 Aplicación web para reemplazar el informe semanal de Word que usan las redes (grupos pequeños) de la iglesia. Cada líder llena su reporte en un formulario en línea; el resultado se ve como un panel semanal ordenado, exportable a PDF/Excel.
 
-**Estado actual: planeación / bosquejo.** Todavía no hay código de la aplicación en este repositorio — este README y `CLAUDE.md` documentan las decisiones tomadas hasta ahora para que el desarrollo arranque con contexto completo, en vez de sobre una pizarra en blanco.
+**Estado actual: scaffold funcionando.** El esquema de base de datos (con RLS) ya está aplicado en el proyecto real de Supabase, y el proyecto Next.js está conectado y corriendo. Faltan las pantallas reales (login, formulario de reporte, panel de consulta) — ver `CLAUDE.md` para el detalle técnico completo y el estado exacto.
 
 El bosquejo visual (mockup interactivo, sin datos reales) vive fuera del repo, en un Artifact de Claude. Pídele el link a quien lo generó si necesitas verlo.
+
+## Correr el proyecto localmente
+
+```bash
+npm install
+cp .env.example .env.local   # pedir las credenciales reales del proyecto Supabase
+npm run dev
+```
+
+Abrir [http://localhost:3000](http://localhost:3000).
 
 ## Stack
 
@@ -44,7 +54,9 @@ El resumen general de la semana (total de miembros, asistencia total a las redes
 1. ~~Confirmar los últimos puntos técnicos pendientes~~ — dueño del repo, ambientes y permisos de roster ya resueltos (ver `CLAUDE.md`). Queda pendiente solo el dominio final y quién hace la carga inicial de datos.
 2. ~~Definir el esquema de base de datos~~ — ver [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
 3. ~~Crear el proyecto real de Supabase y aplicar esta migración~~ — proyecto `redes-hayesperanza` activo, esquema y RLS aplicados y verificados (sin advertencias de seguridad/rendimiento).
-4. Scaffoldear el proyecto Next.js real y conectarlo a Supabase.
+4. ~~Scaffoldear el proyecto Next.js real y conectarlo a Supabase~~ — hecho, corriendo y probado contra el Supabase real (ver `CLAUDE.md`).
 5. Migrar el diseño del bosquejo (Artifact) a componentes reales.
+6. Construir el flujo de login/invitación de usuarios (solo por invitación del admin — ver `CLAUDE.md`).
+7. Construir el formulario de reporte semanal y el panel de consulta.
 
 Ver `CLAUDE.md` para el detalle técnico completo (modelo de datos, decisiones de producto, sistema de diseño).

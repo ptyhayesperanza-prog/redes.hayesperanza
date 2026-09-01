@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/*
+ * Tokens del sistema de diseño (ver CLAUDE.md > "Sistema de diseño").
+ * El mockup visual original vive fuera de este repo (Artifact de Claude);
+ * estos valores son un punto de partida razonable siguiendo esa
+ * dirección — ajustar cuando se porte el diseño real.
+ */
+:root {
+  --background: #faf9fc; /* casi blanco, tinte lila muy sutil */
+  --foreground: #221e29;
+  --surface: rgba(255, 255, 255, 0.6); /* panel glassmorphism */
+  --surface-border: rgba(110, 79, 163, 0.12);
+
+  --accent: #6e4fa3; /* violeta, acento principal */
+  --accent-foreground: #ffffff;
+
+  /* Colores semánticos: al día / atrasado / faltó / nuevo */
+  --status-al-dia: #3f8f5f;
+  --status-atrasado: #c78a2e;
+  --status-falto: #b5573d;
+  --status-nuevo: #3573b5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-border: var(--surface-border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-status-al-dia: var(--status-al-dia);
+  --color-status-atrasado: var(--status-atrasado);
+  --color-status-falto: var(--status-falto);
+  --color-status-nuevo: var(--status-nuevo);
+
+  --font-sans: var(--font-work-sans);
+  --font-serif: var(--font-fraunces);
+  --font-mono: var(--font-ibm-plex-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #17141c;
+    --foreground: #f1eef7;
+    --surface: rgba(255, 255, 255, 0.06);
+    --surface-border: rgba(255, 255, 255, 0.1);
+
+    --accent: #9d7fd1;
+    --accent-foreground: #17141c;
+
+    --status-al-dia: #6fbf8a;
+    --status-atrasado: #e0ab52;
+    --status-falto: #e0836a;
+    --status-nuevo: #6ea3d9;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-work-sans), Arial, Helvetica, sans-serif;
+}
