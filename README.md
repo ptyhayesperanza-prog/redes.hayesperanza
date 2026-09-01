@@ -55,8 +55,10 @@ El resumen general de la semana (total de miembros, asistencia total a las redes
 2. ~~Definir el esquema de base de datos~~ — ver [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
 3. ~~Crear el proyecto real de Supabase y aplicar esta migración~~ — proyecto `redes-hayesperanza` activo, esquema y RLS aplicados y verificados (sin advertencias de seguridad/rendimiento).
 4. ~~Scaffoldear el proyecto Next.js real y conectarlo a Supabase~~ — hecho, corriendo y probado contra el Supabase real (ver `CLAUDE.md`).
-5. Migrar el diseño del bosquejo (Artifact) a componentes reales.
-6. Construir el flujo de login/invitación de usuarios (solo por invitación del admin — ver `CLAUDE.md`).
-7. Construir el formulario de reporte semanal y el panel de consulta.
+5. ~~Construir el login y el formulario de reporte semanal~~ — hecho y probado de punta a punta (login, formulario, fotos). Ver `CLAUDE.md` para credenciales de prueba y huecos pendientes.
+6. Migrar el diseño del bosquejo (Artifact) a componentes reales.
+7. Cargar el catálogo real de `materiales`/`temas_material` (hoy está vacío).
+8. Construir el panel de consulta (mentor/pastor/admin).
+9. Desplegar a Vercel — necesario para que el correo de restablecimiento de contraseña del admin funcione.
 
 Ver `CLAUDE.md` para el detalle técnico completo (modelo de datos, decisiones de producto, sistema de diseño).

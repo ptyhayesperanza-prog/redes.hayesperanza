@@ -87,6 +87,24 @@ El mockup visual ya definió una dirección de diseño concreta — al construir
 
 Si ves referencias a `index.html` o `main.dc.html` en discusiones previas del proyecto: eso es terminología del **Design Canvas** (herramienta de Claude para maquetar visualmente), **no** la estructura de este repositorio. Next.js no usa un `index.html` suelto — la página principal real es [`app/page.tsx`](app/page.tsx).
 
+## Formulario de reporte semanal (2026-09-01)
+
+Construido y probado de punta a punta contra el Supabase real (login → formulario → guardado → subida de fotos), incluyendo un bug real encontrado y corregido en el camino.
+
+**Páginas nuevas**:
+- `/login`, `/recuperar`, `/actualizar-contrasena`: login por correo/contraseña + flujo oficial de recuperación de contraseña de Supabase (sin que la app conozca contraseñas ajenas).
+- `/reportar`: el formulario real para el rol líder — roster con checkboxes de asistencia (lo no marcado = "faltaron", calculado solo), lista dinámica de visitas/nuevos, se_congregan, ofrenda, material+capítulo, discipulados, comentario. `app/reportar/actions.ts` es el server action que inserta en `reportes_semanales` + `asistencia_semanal`.
+- `/reportar/exito`: tras guardar, permite subir hasta 2 fotos directo al bucket privado (`fotos-reportes`), insertando su fila en `fotos_reporte`.
+- `app/page.tsx`: redirige según rol (líder → `/reportar`; sin sesión → `/login`).
+
+**Bug real encontrado y corregido**: al crear usuarios de `auth.users` directamente por SQL (bootstrap, sin `service_role` key), los campos de token (`confirmation_token`, `recovery_token`, `email_change*`, etc.) quedaron en `NULL` en vez de `''`. Eso rompía el login con `"Database error querying schema"` (500) del lado de GoTrue. Si se crean más usuarios por SQL en el futuro, hay que setear esos campos a `''` explícitamente.
+
+**Cuentas creadas**:
+- **Admin real**: `ptyhayesperanza@gmail.com`, sin contraseña utilizable todavía — se le envió el correo oficial de "restablecer contraseña" de Supabase, pero **el enlace no va a funcionar hasta que la app esté desplegada** (hoy solo corre en localhost de desarrollo). Pendiente: desplegar a Vercel o dar una contraseña temporal manualmente.
+- **Líder de prueba** (datos ficticios, para pruebas): `lider.prueba@example.com` / `PruebaLider2026!`, asignado a "Red de Prueba" (3 miembros ficticios). Reemplazar por datos reales cuando se cargue la primera red real.
+
+**Huecos que quedaron fuera de esta pasada** (no construidos aún, no son bugs): edición/borrado de reportes ya enviados, catálogo de `materiales`/`temas_material` (está vacío — el selector de material en el formulario no tiene opciones todavía), panel de consulta para mentor/pastor/admin, y el despliegue a Vercel.
+
 ## Estado del scaffold de Next.js (2026-08-31)
 
 Ya está armado y verificado corriendo contra el Supabase real:
