@@ -109,14 +109,17 @@ export type Database = {
       }
       mentores: {
         Row: {
+          color: string | null
           id: string
           nombre: string
         }
         Insert: {
+          color?: string | null
           id?: string
           nombre: string
         }
         Update: {
+          color?: string | null
           id?: string
           nombre?: string
         }
@@ -128,18 +131,21 @@ export type Database = {
           id: string
           nombre: string
           red_id: string
+          telefono: string | null
         }
         Insert: {
           activo?: boolean
           id?: string
           nombre: string
           red_id: string
+          telefono?: string | null
         }
         Update: {
           activo?: boolean
           id?: string
           nombre?: string
           red_id?: string
+          telefono?: string | null
         }
         Relationships: [
           {
@@ -193,22 +199,34 @@ export type Database = {
       redes: {
         Row: {
           activa: boolean
+          anfitrion: string | null
+          colider: string | null
+          dia_reunion: string | null
+          direccion: string | null
+          horario: string | null
           id: string
-          lider_colider_anfitrion: string | null
           mentor_id: string | null
           nombre: string
         }
         Insert: {
           activa?: boolean
+          anfitrion?: string | null
+          colider?: string | null
+          dia_reunion?: string | null
+          direccion?: string | null
+          horario?: string | null
           id?: string
-          lider_colider_anfitrion?: string | null
           mentor_id?: string | null
           nombre: string
         }
         Update: {
           activa?: boolean
+          anfitrion?: string | null
+          colider?: string | null
+          dia_reunion?: string | null
+          direccion?: string | null
+          horario?: string | null
           id?: string
-          lider_colider_anfitrion?: string | null
           mentor_id?: string | null
           nombre?: string
         }

@@ -27,9 +27,9 @@ Reemplazo del informe semanal de Word de "Redes Hay Esperanza" (grupos pequeños
 
 Tablas principales:
 
-- **mentores**: `id`, `nombre`
-- **redes**: `id`, `nombre`/número (ej. "Red 017"), `lider_colider_anfitrion` (texto), `mentor_id`, `activa`
-- **miembros_red**: `id`, `red_id`, `nombre`, `activo` — el roster fijo de cada red
+- **mentores**: `id`, `nombre`, `color` (color de identificación visual de la mentoría, ej. "Morado" — texto libre, no enum, porque el informe real usa nombres de color ad hoc como "Naranja peach")
+- **redes**: `id`, `nombre`/número (ej. "Red 017"), `mentor_id`, `activa`, `colider` (texto), `anfitrion` (texto), `direccion`, `dia_reunion`, `horario` — el líder ya se identifica vía `perfiles.red_id`, no hace falta un campo de texto aparte
+- **miembros_red**: `id`, `red_id`, `nombre`, `telefono`, `activo` — el roster fijo de cada red
 - **materiales**: `id`, `titulo` (ej. "Nuevos Comienzos")
 - **temas_material**: `id`, `material_id`, `numero_capitulo`, `titulo_tema`, `orden`
 - **reportes_semanales**: `id`, `red_id`, `semana_inicio`, `semana_fin`, `total_miembros`, `total_fieles` (calculado o manual), `total_nuevos` (calculado o manual), `se_congregan`, `discipulados` (texto libre: llamadas/visitas de la semana), `ofrenda`, `material_id`, `capitulo_actual`, `comentario_lider`, `creado_por`, `creado_en`
@@ -53,6 +53,20 @@ Permisos: usar Row Level Security de Postgres para los 4 roles, no solo lógica 
 - 🟡 **Integridad, ya corregido**: se agregaron triggers para que `creado_por` (en `reportes_semanales`) y `subida_por` (en `fotos_reporte`) siempre sean quien hace la petición real (salvo admin) — antes un líder podía enviar un id ajeno y falsificar autoría.
 - 🟡 **Integridad, ya corregido**: trigger `private.check_asistencia_miembro_red` — evita marcar asistencia con un `miembro_id` que pertenezca al roster de otra red distinta a la del reporte.
 - Aislamiento entre redes verificado funcionalmente: un líder de prueba solo pudo ver/insertar en su propia red, nunca en la de otro.
+
+**Ajuste de esquema (2026-08-31), a partir de revisar la plantilla real del informe de Word**: se agregaron `mentores.color`, `redes.colider/anfitrion/direccion/dia_reunion/horario`, y `miembros_red.telefono` — ver [`supabase/migrations/0002_datos_red_y_mentores.sql`](supabase/migrations/0002_datos_red_y_mentores.sql). Se confirmó que `ofrenda` se queda como monto en $ (no como sí/no). Los 7 mentores reales ya están cargados con su color:
+
+| Mentor | Color |
+|---|---|
+| Perla y Edwin Rodríguez | Morado |
+| Cesar y Yara Córdoba | Turquesa |
+| Norma de Torrijos | Blanco |
+| Migdalia de Delgado | Rojo |
+| Lucy de Candanedo | Verde |
+| Pastor Eliel | Azul |
+| Pastor Marco | Naranja peach |
+
+A partir de esta migración, los cambios de esquema se documentan en migraciones incrementales nuevas (`0002_*`, `0003_*`, ...) en vez de reescribir `0001_init.sql` — ese archivo ya se trató como "estado ya aplicado" varias veces mientras el proyecto todavía no tenía datos reales; ahora que sí los tiene, reescribirlo retroactivamente dejaría de reflejar la realidad de cómo se llegó al estado actual.
 
 **Resuelto (2026-08-31)**:
 
@@ -91,7 +105,7 @@ Nota de entorno: en esta máquina, `npm install` requiere `--ignore-scripts` por
 ## Pendiente de decidir (no asumir, preguntar al equipo)
 
 - Dominio: la iglesia proveerá un subdominio propio más adelante (fecha sin confirmar); mientras tanto, subdominio gratuito de Vercel.
-- Quién hace la carga inicial de mentores/redes/miembros existentes al sistema.
+- Quién hace la carga inicial de **redes y sus rosters de miembros** al sistema (los 7 mentores reales ya se cargaron, ver abajo).
 
 ## Resuelto
 
