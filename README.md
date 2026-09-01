@@ -41,9 +41,10 @@ El resumen general de la semana (total de miembros, asistencia total a las redes
 
 ## Próximos pasos
 
-1. Confirmar los últimos puntos técnicos pendientes (dueño del repo/organización, ambiente de pruebas, cuándo llega el subdominio).
-2. Crear el proyecto de Supabase y definir el esquema de base de datos (ver `CLAUDE.md`).
-3. Scaffoldear el proyecto Next.js real.
-4. Migrar el diseño del bosquejo (Artifact) a componentes reales.
+1. ~~Confirmar los últimos puntos técnicos pendientes~~ — dueño del repo, ambientes y permisos de roster ya resueltos (ver `CLAUDE.md`). Queda pendiente solo el dominio final y quién hace la carga inicial de datos.
+2. ~~Definir el esquema de base de datos~~ — ver [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+3. Crear el proyecto real de Supabase y aplicar esta migración.
+4. Scaffoldear el proyecto Next.js real.
+5. Migrar el diseño del bosquejo (Artifact) a componentes reales.
 
 Ver `CLAUDE.md` para el detalle técnico completo (modelo de datos, decisiones de producto, sistema de diseño).

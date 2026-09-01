@@ -18,6 +18,8 @@ Reemplazo del informe semanal de Word de "Redes Hay Esperanza" (grupos pequeños
 - **Sin migración de datos históricos**: el sistema arranca de cero desde la primera semana en que se use. No se migran los Word viejos.
 - **Los reportes semanales NO se consolidan**: cada semana es su propio registro/exportable independiente (su propio PDF/Excel al exportar). No existe un archivo único acumulado de todas las semanas.
 - **Las categorías originales del Word se preservan todas** — ver la lista completa en el modelo de datos abajo. Ninguna se elimina; solo se reorganiza la forma de capturarlas.
+- **Edición del roster de una red**: solo el líder de esa red y el rol admin pueden agregar/editar/quitar miembros del roster. El mentor tiene acceso de solo lectura sobre el roster de las redes que supervisa (igual que sobre los reportes).
+- **Ambientes**: solo producción por ahora (un proyecto de Supabase, un deploy de Vercel). No se monta un ambiente de staging separado en esta etapa.
 
 ## Modelo de datos (Supabase / Postgres)
 
@@ -37,6 +39,8 @@ El resumen general semanal (total de miembros, asistencia total a redes, total d
 
 Permisos: usar Row Level Security de Postgres para los 4 roles, no solo lógica en el frontend.
 
+**Esquema real**: [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) — tablas, la vista `resumen_semanal` y las políticas RLS ya escritas para los 4 roles. Nota: quién puede *borrar* un reporte semanal (no solo crear/editar) no estaba definido explícitamente; por ahora la migración lo deja solo para admin — revisar si el líder también debería poder borrar un reporte propio antes de enviarlo.
+
 ## Sistema de diseño (del bosquejo/Artifact)
 
 El mockup visual ya definió una dirección de diseño concreta — al construir los componentes reales, seguir esta paleta y tipografía en vez de inventar una nueva:
@@ -53,8 +57,11 @@ Si ves referencias a `index.html` o `main.dc.html` en discusiones previas del pr
 
 ## Pendiente de decidir (no asumir, preguntar al equipo)
 
-- Dueño/organización del repositorio de GitHub.
 - Dominio: la iglesia proveerá un subdominio propio más adelante (fecha sin confirmar); mientras tanto, subdominio gratuito de Vercel.
-- ¿Ambiente de staging separado de producción, o solo producción?
 - Quién hace la carga inicial de mentores/redes/miembros existentes al sistema.
-- Quién puede editar el roster de una red además de su líder (¿mentor/admin también?) — no se ha confirmado explícitamente.
+
+## Resuelto
+
+- **Dueño/organización del repositorio de GitHub**: [ptyhayesperanza-prog/redes.hayesperanza](https://github.com/ptyhayesperanza-prog/redes.hayesperanza.git).
+- **Ambiente de staging**: no, solo producción (ver arriba).
+- **Edición del roster**: líder de la red + admin (ver arriba).
