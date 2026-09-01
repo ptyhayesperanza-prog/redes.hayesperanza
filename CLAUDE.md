@@ -44,6 +44,18 @@ Permisos: usar Row Level Security de Postgres para los 4 roles, no solo lógica 
 - Proyecto Supabase: `redes-hayesperanza` (`ezsbcqhgyttmklzkkjkp`), org `vannhls`, región `us-east-1`.
 - Nota: quién puede *borrar* un reporte semanal (no solo crear/editar) no estaba definido explícitamente; por ahora la migración lo deja solo para admin — revisar si el líder también debería poder borrar un reporte propio antes de enviarlo.
 
+**Auditoría de seguridad (2026-08-31)**: se revisó manualmente más allá del advisor automático de Supabase (políticas completas, grants de tabla, pruebas funcionales con usuarios simulados en transacciones revertidas). Se encontró y corrigió:
+
+- 🔴 **Crítico, ya corregido**: `perfiles_update_propio` no tenía `WITH CHECK` propio, así que cualquier líder o mentor podía editar su propia fila y cambiarse `rol` a `admin` (o su `red_id`/`mentor_id`) — escalación total de privilegios con un solo UPDATE. Se agregó el trigger `private.prevent_perfiles_self_escalation` que bloquea cambios a `rol`/`red_id`/`mentor_id` salvo que quien edita ya sea admin. Verificado con una prueba funcional (intento de auto-escalación bloqueado; edición legítima del propio nombre sí funciona).
+- 🟡 **Higiene, ya corregido**: se revocó `TRUNCATE` de `anon`/`authenticated` en todas las tablas (Supabase lo otorga por defecto). `TRUNCATE` ignora RLS por completo; no era explotable vía la API REST normal, pero es una puerta innecesaria.
+- 🟡 **Integridad, ya corregido**: se agregaron triggers para que `creado_por` (en `reportes_semanales`) y `subida_por` (en `fotos_reporte`) siempre sean quien hace la petición real (salvo admin) — antes un líder podía enviar un id ajeno y falsificar autoría.
+- 🟡 **Integridad, ya corregido**: trigger `private.check_asistencia_miembro_red` — evita marcar asistencia con un `miembro_id` que pertenezca al roster de otra red distinta a la del reporte.
+- Aislamiento entre redes verificado funcionalmente: un líder de prueba solo pudo ver/insertar en su propia red, nunca en la de otro.
+
+**Huecos conocidos, no son bugs activos pero hay que decidirlos antes de construir esas partes**:
+- **Fotos**: la tabla `fotos_reporte` guarda `ruta_storage` como texto, pero todavía no existe el bucket de Supabase Storage ni sus políticas — hay que crearlos (con sus propias políticas de acceso) cuando se construya la subida de fotos.
+- **Registro público en Supabase Auth**: no se ha revisado/decidido si el signup público debe estar habilitado o si el acceso será solo por invitación del admin. Un usuario que se registre sin que el admin le cree su fila en `perfiles` no tiene acceso a ningún dato (confirmado por las políticas), pero conviene decidir el flujo de alta antes de construir la pantalla de login.
+
 ## Sistema de diseño (del bosquejo/Artifact)
 
 El mockup visual ya definió una dirección de diseño concreta — al construir los componentes reales, seguir esta paleta y tipografía en vez de inventar una nueva:

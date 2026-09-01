@@ -341,3 +341,94 @@ create policy fotos_delete on fotos_reporte for delete
       where private.current_rol() = 'admin' or red_id = private.current_red_id()
     )
   );
+
+-- ============================================================
+-- Triggers de refuerzo (cosas que RLS por sí sola no puede expresar,
+-- porque RLS filtra FILAS visibles/escribibles, no COLUMNAS ni relaciones
+-- entre columnas de la misma fila).
+-- ============================================================
+
+-- CRÍTICO: perfiles_update_propio permite a cada quien editar su propia
+-- fila (id = auth.uid()), pero esa política es a nivel de fila, no de
+-- columna — sin este trigger, un líder podría hacer
+-- `update perfiles set rol = 'admin' where id = auth.uid()` y auto-
+-- otorgarse acceso total. Solo un admin puede cambiar rol/red_id/mentor_id.
+create function private.prevent_perfiles_self_escalation() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if private.current_rol() is distinct from 'admin' then
+    if new.rol is distinct from old.rol
+       or new.red_id is distinct from old.red_id
+       or new.mentor_id is distinct from old.mentor_id then
+      raise exception 'Solo un admin puede cambiar rol, red_id o mentor_id de un perfil';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_perfiles_self_escalation
+before update on perfiles
+for each row execute function private.prevent_perfiles_self_escalation();
+
+-- Supabase otorga TRUNCATE a anon/authenticated por defecto en cada tabla
+-- nueva. TRUNCATE ignora RLS por completo (no es una operación fila por
+-- fila) y PostgREST nunca lo necesita para servir la API — se revoca por
+-- higiene, aunque hoy no sea explotable vía la API REST normal.
+revoke truncate on all tables in schema public from anon, authenticated;
+
+-- Forzar creado_por / subida_por a ser siempre quien hace la petición
+-- (salvo admin), para que nadie pueda falsificar la autoría de un reporte
+-- o una foto pasando un id ajeno en el body de la petición.
+create function private.set_creado_por() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if private.current_rol() is distinct from 'admin' then
+    new.creado_por := auth.uid();
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_set_creado_por
+before insert on reportes_semanales
+for each row execute function private.set_creado_por();
+
+create function private.set_subida_por() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if private.current_rol() is distinct from 'admin' then
+    new.subida_por := auth.uid();
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_set_subida_por
+before insert on fotos_reporte
+for each row execute function private.set_subida_por();
+
+-- asistencia_semanal: si se referencia un miembro_id, debe pertenecer al
+-- roster de la MISMA red del reporte (evita marcar asistencia de un
+-- miembro de otra red, algo que las políticas de RLS por sí solas no
+-- pueden impedir porque no comparan dos tablas relacionadas entre sí).
+create function private.check_asistencia_miembro_red() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  v_red_reporte uuid;
+  v_red_miembro uuid;
+begin
+  if new.miembro_id is not null then
+    select red_id into v_red_reporte from reportes_semanales where id = new.reporte_id;
+    select red_id into v_red_miembro from miembros_red where id = new.miembro_id;
+    if v_red_reporte is distinct from v_red_miembro then
+      raise exception 'El miembro no pertenece a la red de este reporte';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_check_asistencia_miembro_red
+before insert or update on asistencia_semanal
+for each row execute function private.check_asistencia_miembro_red();
