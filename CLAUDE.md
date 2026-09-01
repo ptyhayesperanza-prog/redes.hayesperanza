@@ -52,9 +52,10 @@ Permisos: usar Row Level Security de Postgres para los 4 roles, no solo lógica 
 - 🟡 **Integridad, ya corregido**: trigger `private.check_asistencia_miembro_red` — evita marcar asistencia con un `miembro_id` que pertenezca al roster de otra red distinta a la del reporte.
 - Aislamiento entre redes verificado funcionalmente: un líder de prueba solo pudo ver/insertar en su propia red, nunca en la de otro.
 
-**Huecos conocidos, no son bugs activos pero hay que decidirlos antes de construir esas partes**:
-- **Fotos**: la tabla `fotos_reporte` guarda `ruta_storage` como texto, pero todavía no existe el bucket de Supabase Storage ni sus políticas — hay que crearlos (con sus propias políticas de acceso) cuando se construya la subida de fotos.
-- **Registro público en Supabase Auth**: no se ha revisado/decidido si el signup público debe estar habilitado o si el acceso será solo por invitación del admin. Un usuario que se registre sin que el admin le cree su fila en `perfiles` no tiene acceso a ningún dato (confirmado por las políticas), pero conviene decidir el flujo de alta antes de construir la pantalla de login.
+**Resuelto (2026-08-31)**:
+
+- **Fotos / Storage**: bucket privado `fotos-reportes` creado (`public = false`), servido solo vía RLS — nunca por URL pública directa. Convención de ruta: `fotos-reportes/{reporte_id}/{archivo}`. Las políticas de `storage.objects` reutilizan la misma lógica de visibilidad que `fotos_reporte` (líder de esa red / mentor de esa red / pastor / admin). Verificado con prueba funcional: un líder de prueba solo pudo ver el objeto de su propio reporte, no el de otra red.
+- **Alta de usuarios**: solo por invitación del admin, no registro público. Esto es una decisión de producto/flujo de la app (el admin crea la cuenta + su fila en `perfiles` con rol y red asignados desde el panel de admin — usar `supabase.auth.admin.inviteUserByEmail()` en el backend de Next.js cuando se construya esa pantalla), **pero además hay que desactivar manualmente el registro público a nivel de proyecto** en el dashboard de Supabase: `Authentication → Sign In / Providers → Email` (`/dashboard/project/ezsbcqhgyttmklzkkjkp/auth/providers`), desactivando la opción de permitir que cualquiera se registre por su cuenta. Esto no se puede hacer por SQL/migración — es configuración de Auth, no de la base de datos. **Pendiente de que alguien con acceso al dashboard lo confirme/active.**
 
 ## Sistema de diseño (del bosquejo/Artifact)
 

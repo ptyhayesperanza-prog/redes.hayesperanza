@@ -432,3 +432,53 @@ $$;
 create trigger trg_check_asistencia_miembro_red
 before insert or update on asistencia_semanal
 for each row execute function private.check_asistencia_miembro_red();
+
+-- ============================================================
+-- Storage: bucket privado para fotos de reportes semanales.
+--
+-- Nunca público — se sirve solo vía RLS, reutilizando la misma lógica de
+-- visibilidad de fotos_reporte. Convención de ruta:
+-- fotos-reportes/{reporte_id}/{archivo}. El primer segmento de la ruta
+-- identifica el reporte.
+-- ============================================================
+
+insert into storage.buckets (id, name, public)
+values ('fotos-reportes', 'fotos-reportes', false);
+
+create policy fotos_reportes_storage_select on storage.objects for select
+  using (
+    bucket_id = 'fotos-reportes'
+    and (storage.foldername(name))[1]::uuid in (
+      select id from reportes_semanales
+      where private.current_rol() in ('pastor', 'admin')
+        or red_id in (select id from redes where mentor_id = private.current_mentor_id())
+        or red_id = private.current_red_id()
+    )
+  );
+
+create policy fotos_reportes_storage_insert on storage.objects for insert
+  with check (
+    bucket_id = 'fotos-reportes'
+    and (storage.foldername(name))[1]::uuid in (
+      select id from reportes_semanales
+      where private.current_rol() = 'admin' or red_id = private.current_red_id()
+    )
+  );
+
+create policy fotos_reportes_storage_update on storage.objects for update
+  using (
+    bucket_id = 'fotos-reportes'
+    and (storage.foldername(name))[1]::uuid in (
+      select id from reportes_semanales
+      where private.current_rol() = 'admin' or red_id = private.current_red_id()
+    )
+  );
+
+create policy fotos_reportes_storage_delete on storage.objects for delete
+  using (
+    bucket_id = 'fotos-reportes'
+    and (storage.foldername(name))[1]::uuid in (
+      select id from reportes_semanales
+      where private.current_rol() = 'admin' or red_id = private.current_red_id()
+    )
+  );
