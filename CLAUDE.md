@@ -39,7 +39,10 @@ El resumen general semanal (total de miembros, asistencia total a redes, total d
 
 Permisos: usar Row Level Security de Postgres para los 4 roles, no solo lógica en el frontend.
 
-**Esquema real**: [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) — tablas, la vista `resumen_semanal` y las políticas RLS ya escritas para los 4 roles. Nota: quién puede *borrar* un reporte semanal (no solo crear/editar) no estaba definido explícitamente; por ahora la migración lo deja solo para admin — revisar si el líder también debería poder borrar un reporte propio antes de enviarlo.
+**Esquema real**: [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) — tablas, la vista `resumen_semanal` y las políticas RLS para los 4 roles. Ya está **aplicado y verificado** (sin advertencias de seguridad ni rendimiento en el advisor de Supabase) en el proyecto real:
+
+- Proyecto Supabase: `redes-hayesperanza` (`ezsbcqhgyttmklzkkjkp`), org `vannhls`, región `us-east-1`.
+- Nota: quién puede *borrar* un reporte semanal (no solo crear/editar) no estaba definido explícitamente; por ahora la migración lo deja solo para admin — revisar si el líder también debería poder borrar un reporte propio antes de enviarlo.
 
 ## Sistema de diseño (del bosquejo/Artifact)
 

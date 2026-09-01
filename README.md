@@ -43,8 +43,8 @@ El resumen general de la semana (total de miembros, asistencia total a las redes
 
 1. ~~Confirmar los últimos puntos técnicos pendientes~~ — dueño del repo, ambientes y permisos de roster ya resueltos (ver `CLAUDE.md`). Queda pendiente solo el dominio final y quién hace la carga inicial de datos.
 2. ~~Definir el esquema de base de datos~~ — ver [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
-3. Crear el proyecto real de Supabase y aplicar esta migración.
-4. Scaffoldear el proyecto Next.js real.
+3. ~~Crear el proyecto real de Supabase y aplicar esta migración~~ — proyecto `redes-hayesperanza` activo, esquema y RLS aplicados y verificados (sin advertencias de seguridad/rendimiento).
+4. Scaffoldear el proyecto Next.js real y conectarlo a Supabase.
 5. Migrar el diseño del bosquejo (Artifact) a componentes reales.
 
 Ver `CLAUDE.md` para el detalle técnico completo (modelo de datos, decisiones de producto, sistema de diseño).
