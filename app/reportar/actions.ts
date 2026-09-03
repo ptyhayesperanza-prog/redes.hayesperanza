@@ -6,7 +6,7 @@ import { getUsuarioActual } from "@/lib/supabase/get-perfil";
 
 export async function crearReporteSemanal(formData: FormData) {
   const sesion = await getUsuarioActual();
-  if (!sesion || sesion.perfil.rol !== "lider" || !sesion.perfil.red_id) {
+  if (!sesion || !sesion.perfil || sesion.perfil.rol !== "lider" || !sesion.perfil.red_id) {
     redirect("/login");
   }
 

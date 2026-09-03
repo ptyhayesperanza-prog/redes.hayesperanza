@@ -440,6 +440,15 @@ export type Database = {
       }
     }
     Functions: {
+      listar_usuarios_pendientes: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          nombre_sugerido: string
+        }[]
+      }
       miembro_es_fiel: {
         Args: { p_meses?: number; p_miembro_id: string }
         Returns: boolean

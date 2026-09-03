@@ -21,7 +21,7 @@ export default async function ReportarPage() {
   if (!sesion) redirect("/login");
 
   const { perfil } = sesion;
-  if (perfil.rol !== "lider" || !perfil.red_id) redirect("/");
+  if (!perfil || perfil.rol !== "lider" || !perfil.red_id) redirect("/");
 
   const supabase = await createClient();
 

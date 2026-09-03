@@ -12,9 +12,9 @@ export async function getUsuarioActual() {
     .from("perfiles")
     .select("id, nombre_completo, rol, red_id, mentor_id")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
-  if (!perfil) return null;
-
+  // perfil es null si la cuenta se autoregistro y el admin todavia no le
+  // asigna rol/red — sigue "logueado" pero sin ningun acceso a datos.
   return { user, perfil };
 }

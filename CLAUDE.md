@@ -34,7 +34,7 @@ Tablas principales:
 - **temas_material**: `id`, `material_id`, `numero_capitulo`, `titulo_tema`, `orden`
 - **reportes_semanales**: `id`, `red_id`, `semana_inicio`, `semana_fin`, `total_miembros`, `total_fieles` (calculado o manual), `total_nuevos` (calculado o manual), `se_congregan`, `discipulados` (texto libre: llamadas/visitas de la semana — solo editable por líder/colíder), `se_recogio_ofrenda` (bool), `ofrenda` (monto, solo si `se_recogio_ofrenda`), `material_id`, `capitulo_actual`, `comentario_lider`, `dia_habitual` (bool — la red se reunió en su día/hora de siempre), `fecha_reunion`/`hora_reunion` (solo si `dia_habitual = false`), `creado_por`, `creado_en`
 - **asistencia_semanal**: `id`, `reporte_id`, `miembro_id` (nulo si es alguien nuevo), `nombre` (si es nuevo), `tipo` (`fiel` | `nuevo`), `asistio` (bool), `invitado_por` (FK a `miembros_red` — qué miembro del roster trajo a esta visita, solo aplica cuando `tipo = 'nuevo'`) — "faltaron" = miembros del roster sin registro de asistencia esa semana
-- **peticiones_oracion**: `id`, `reporte_id`, `miembro_id` (nulo si es de alguien fuera del roster), `nombre` (si es de alguien fuera del roster), `descripcion` (máx. 500 caracteres), `creado_en`
+- **peticiones_oracion**: `id`, `reporte_id`, `miembro_id` (nulo si es de alguien fuera del roster), `nombre` (si es de alguien fuera del roster), `descripcion` (máx. 200 caracteres), `creado_en`
 - **fotos_reporte**: `id`, `reporte_id`, `ruta_storage`, `subida_por` (máx. 2 filas por `reporte_id`, validar en la capa de aplicación)
 - **usuarios/perfiles**: `id` (ligado a `auth.users` de Supabase), `nombre_completo`, `rol` (`pastor` | `admin` | `mentor` | `lider`), `red_id` (si es líder), `mentor_id` (si es mentor)
 
@@ -78,7 +78,7 @@ A partir de esta migración, los cambios de esquema se documentan en migraciones
 **Resuelto (2026-08-31)**:
 
 - **Fotos / Storage**: bucket privado `fotos-reportes` creado (`public = false`), servido solo vía RLS — nunca por URL pública directa. Convención de ruta: `fotos-reportes/{reporte_id}/{archivo}`. Las políticas de `storage.objects` reutilizan la misma lógica de visibilidad que `fotos_reporte` (líder de esa red / mentor de esa red / pastor / admin). Verificado con prueba funcional: un líder de prueba solo pudo ver el objeto de su propio reporte, no el de otra red.
-- **Alta de usuarios**: solo por invitación del admin, no registro público. Esto es una decisión de producto/flujo de la app (el admin crea la cuenta + su fila en `perfiles` con rol y red asignados desde el panel de admin — usar `supabase.auth.admin.inviteUserByEmail()` en el backend de Next.js cuando se construya esa pantalla), **pero además hay que desactivar manualmente el registro público a nivel de proyecto** en el dashboard de Supabase: `Authentication → Sign In / Providers → Email` (`/dashboard/project/ezsbcqhgyttmklzkkjkp/auth/providers`), desactivando la opción de permitir que cualquiera se registre por su cuenta. Esto no se puede hacer por SQL/migración — es configuración de Auth, no de la base de datos. **Pendiente de que alguien con acceso al dashboard lo confirme/active.**
+- ~~**Alta de usuarios**: solo por invitación del admin~~ — **decisión revertida el 2026-09-03**, ver la sección "Autoregistro" más abajo. El registro público debe quedar **habilitado** (es el comportamiento por defecto de Supabase; nunca llegamos a desactivarlo, así que no hay que tocar nada en el dashboard para esto).
 
 ## Sistema de diseño (del bosquejo/Artifact)
 
@@ -120,13 +120,28 @@ El equipo pidió un lote de cambios adicionales sobre el reporte semanal. Ya est
 - **Ofrenda**: ahora es `se_recogio_ofrenda` (sí/no) + `ofrenda` (monto, solo si hubo).
 - **Cambio de día de reunión**: `dia_habitual` (bool) + `fecha_reunion`/`hora_reunion` si la respuesta es "no".
 - **Visitas con trazabilidad**: `asistencia_semanal.invitado_por` conecta a la visita nueva con el miembro del roster que la trajo (validado por trigger: debe ser de la misma red).
-- **Petición de oración**: tabla `peticiones_oracion`, ligada a un miembro específico (o a un nombre si es de alguien fuera del roster), máximo 500 caracteres.
+- **Petición de oración**: tabla `peticiones_oracion`, ligada a un miembro específico (o a un nombre si es de alguien fuera del roster), máximo 200 caracteres (bajado de 500 a pedido del equipo — ver [`0004_reducir_limite_peticion_oracion.sql`](supabase/migrations/0004_reducir_limite_peticion_oracion.sql)).
 - **Perfil de miembro**: `miembros_red` ganó `apellido`, `correo`, `fecha_nacimiento`, `direccion` — pensado para un modal/popup al hacer clic en el nombre del miembro en el resumen semanal.
 - **Miembro fiel real**: función `miembro_es_fiel(miembro_id, meses default 3)` — ver nota arriba.
 
-**Pendiente de decisión que quedó sin resolver en esta pasada**: el máximo de 500 caracteres para `peticiones_oracion.descripcion` fue una elección razonable mía, no confirmada explícitamente por el equipo — ajustar el `check` de la migración si quieren otro límite.
+**Toggle pendiente en el dashboard de Supabase** (no se puede hacer por SQL/migración): `Authentication → Policies → Password` tiene la protección contra contraseñas filtradas (HaveIBeenPwned) desactivada — el advisor de seguridad lo marca como advertencia. Recomendado activarlo, sobre todo ahora que hay autoregistro público (ver abajo).
 
-**Otro toggle pendiente en el dashboard de Supabase** (igual que el de registro público, no se puede hacer por SQL): `Authentication → Policies → Password` tiene la protección contra contraseñas filtradas (HaveIBeenPwned) desactivada — el advisor de seguridad lo marca como advertencia. Recomendado activarlo antes de invitar líderes reales.
+## Autoregistro y aprobación de admin (2026-09-03)
+
+El equipo pidió que líderes, colíderes, mentores y pastor puedan crear su propia cuenta en vez de que el admin invite a cada uno — esto **reemplaza** la decisión anterior de "solo por invitación" (ver nota tachada arriba). Construido y probado de punta a punta.
+
+**Cómo funciona**: cualquiera puede registrarse (correo + contraseña) en `/registro`, pero esa cuenta **no tiene ningún acceso a nada** hasta que un admin le asigna rol y red/mentor desde `/admin/usuarios`. Esto no necesitó ningún cambio de RLS — ya funcionaba así por diseño (sin fila en `perfiles`, `private.current_rol()` devuelve `NULL` y todas las políticas comparan contra eso). El único código nuevo es la función `listar_usuarios_pendientes()` (security definer, gateada por `current_rol() = 'admin'` — no es una vista, para no disparar el lint de "security definer view"; ver [`0005_autoregistro_y_aprobacion_admin.sql`](supabase/migrations/0005_autoregistro_y_aprobacion_admin.sql)), que le muestra al admin quién se registró sin perfil todavía.
+
+**Páginas nuevas**:
+- `/registro`: formulario de autoregistro (nombre, correo, contraseña) — `supabase.auth.signUp()`.
+- `/admin/usuarios`: panel de admin — lista a los pendientes (`listar_usuarios_pendientes()`), con un formulario por persona para asignar rol y, según el rol, la red (líder) o el mentor del catálogo (mentor). Server action `asignarPerfil` en `app/admin/usuarios/actions.ts`.
+- `app/page.tsx` ahora distingue tres casos: sin sesión → `/login`; con sesión pero sin perfil → pantalla "cuenta pendiente de aprobación"; con perfil → como antes. `getUsuarioActual()` ya no trata "sin perfil" como "no autenticado".
+
+**Bug real encontrado y corregido**: Supabase otorga `EXECUTE` en funciones nuevas directamente a los roles `anon`/`authenticated` (no solo vía `PUBLIC`) — `revoke ... from public` no bastó para quitarle acceso a `anon`; hubo que revocarlo explícitamente de `anon` y `authenticated` antes de re-otorgar solo a `authenticated`. También: `auth.users.email` es `varchar(255)`, no `text` — la función fallaba con "structure of query does not match function result type" hasta castear con `::text`.
+
+**Cuenta de prueba nueva**: `mentor.prueba@example.com` / `MentorPrueba2026!`, ya aprobada con rol mentor (mentor real: Cesar y Yara Córdoba). También queda `pendiente.prueba@example.com` / `PendientePrueba2026!` sin aprobar, a propósito, para poder ver la pantalla de "cuenta pendiente" — bórrala cuando ya no haga falta de referencia.
+
+**Nota de límite de envíos de correo**: el servicio de correo integrado de Supabase (gratis) tiene un límite bajo de envíos por hora — ya lo agotamos varias veces esta sesión probando recuperación de contraseña y registro. Si el equipo prueba registro/recuperación real y no llega el correo, probablemente sea eso, no un bug. Se resuelve configurando un proveedor de correo propio (SMTP) en producción — pendiente, no urgente mientras estemos en pruebas.
 
 ## Estado del scaffold de Next.js (2026-08-31)
 

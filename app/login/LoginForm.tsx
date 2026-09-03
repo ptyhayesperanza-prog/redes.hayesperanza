@@ -81,6 +81,9 @@ export function LoginForm() {
       <Link href="/recuperar" className="text-center text-sm underline opacity-80">
         ¿Olvidaste tu contraseña?
       </Link>
+      <Link href="/registro" className="text-center text-sm underline opacity-80">
+        ¿No tienes cuenta? Regístrate
+      </Link>
     </form>
   );
 }
