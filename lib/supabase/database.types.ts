@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           asistio: boolean
           id: string
+          invitado_por: string | null
           miembro_id: string | null
           nombre: string | null
           reporte_id: string
@@ -26,6 +27,7 @@ export type Database = {
         Insert: {
           asistio: boolean
           id?: string
+          invitado_por?: string | null
           miembro_id?: string | null
           nombre?: string | null
           reporte_id: string
@@ -34,12 +36,20 @@ export type Database = {
         Update: {
           asistio?: boolean
           id?: string
+          invitado_por?: string | null
           miembro_id?: string | null
           nombre?: string | null
           reporte_id?: string
           tipo?: Database["public"]["Enums"]["tipo_asistencia"]
         }
         Relationships: [
+          {
+            foreignKeyName: "asistencia_semanal_invitado_por_fkey"
+            columns: ["invitado_por"]
+            isOneToOne: false
+            referencedRelation: "miembros_red"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "asistencia_semanal_miembro_id_fkey"
             columns: ["miembro_id"]
@@ -128,6 +138,10 @@ export type Database = {
       miembros_red: {
         Row: {
           activo: boolean
+          apellido: string | null
+          correo: string | null
+          direccion: string | null
+          fecha_nacimiento: string | null
           id: string
           nombre: string
           red_id: string
@@ -135,6 +149,10 @@ export type Database = {
         }
         Insert: {
           activo?: boolean
+          apellido?: string | null
+          correo?: string | null
+          direccion?: string | null
+          fecha_nacimiento?: string | null
           id?: string
           nombre: string
           red_id: string
@@ -142,6 +160,10 @@ export type Database = {
         }
         Update: {
           activo?: boolean
+          apellido?: string | null
+          correo?: string | null
+          direccion?: string | null
+          fecha_nacimiento?: string | null
           id?: string
           nombre?: string
           red_id?: string
@@ -196,6 +218,48 @@ export type Database = {
           },
         ]
       }
+      peticiones_oracion: {
+        Row: {
+          creado_en: string
+          descripcion: string
+          id: string
+          miembro_id: string | null
+          nombre: string | null
+          reporte_id: string
+        }
+        Insert: {
+          creado_en?: string
+          descripcion: string
+          id?: string
+          miembro_id?: string | null
+          nombre?: string | null
+          reporte_id: string
+        }
+        Update: {
+          creado_en?: string
+          descripcion?: string
+          id?: string
+          miembro_id?: string | null
+          nombre?: string | null
+          reporte_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "peticiones_oracion_miembro_id_fkey"
+            columns: ["miembro_id"]
+            isOneToOne: false
+            referencedRelation: "miembros_red"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "peticiones_oracion_reporte_id_fkey"
+            columns: ["reporte_id"]
+            isOneToOne: false
+            referencedRelation: "reportes_semanales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       redes: {
         Row: {
           activa: boolean
@@ -246,12 +310,16 @@ export type Database = {
           comentario_lider: string | null
           creado_en: string
           creado_por: string
+          dia_habitual: boolean
           discipulados: string | null
+          fecha_reunion: string | null
+          hora_reunion: string | null
           id: string
           material_id: string | null
           ofrenda: number | null
           red_id: string
           se_congregan: number | null
+          se_recogio_ofrenda: boolean
           semana_fin: string
           semana_inicio: string
           total_fieles: number | null
@@ -263,12 +331,16 @@ export type Database = {
           comentario_lider?: string | null
           creado_en?: string
           creado_por: string
+          dia_habitual?: boolean
           discipulados?: string | null
+          fecha_reunion?: string | null
+          hora_reunion?: string | null
           id?: string
           material_id?: string | null
           ofrenda?: number | null
           red_id: string
           se_congregan?: number | null
+          se_recogio_ofrenda?: boolean
           semana_fin: string
           semana_inicio: string
           total_fieles?: number | null
@@ -280,12 +352,16 @@ export type Database = {
           comentario_lider?: string | null
           creado_en?: string
           creado_por?: string
+          dia_habitual?: boolean
           discipulados?: string | null
+          fecha_reunion?: string | null
+          hora_reunion?: string | null
           id?: string
           material_id?: string | null
           ofrenda?: number | null
           red_id?: string
           se_congregan?: number | null
+          se_recogio_ofrenda?: boolean
           semana_fin?: string
           semana_inicio?: string
           total_fieles?: number | null
@@ -364,7 +440,10 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      miembro_es_fiel: {
+        Args: { p_meses?: number; p_miembro_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       rol_usuario: "pastor" | "admin" | "mentor" | "lider"
@@ -384,12 +463,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -413,11 +492,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -438,11 +517,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -463,11 +542,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -480,11 +559,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

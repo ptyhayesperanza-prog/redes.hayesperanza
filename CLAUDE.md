@@ -32,10 +32,17 @@ Tablas principales:
 - **miembros_red**: `id`, `red_id`, `nombre`, `telefono`, `activo` — el roster fijo de cada red
 - **materiales**: `id`, `titulo` (ej. "Nuevos Comienzos")
 - **temas_material**: `id`, `material_id`, `numero_capitulo`, `titulo_tema`, `orden`
-- **reportes_semanales**: `id`, `red_id`, `semana_inicio`, `semana_fin`, `total_miembros`, `total_fieles` (calculado o manual), `total_nuevos` (calculado o manual), `se_congregan`, `discipulados` (texto libre: llamadas/visitas de la semana), `ofrenda`, `material_id`, `capitulo_actual`, `comentario_lider`, `creado_por`, `creado_en`
-- **asistencia_semanal**: `id`, `reporte_id`, `miembro_id` (nulo si es alguien nuevo), `nombre` (si es nuevo), `tipo` (`fiel` | `nuevo`), `asistio` (bool) — "faltaron" = miembros del roster sin registro de asistencia esa semana
+- **reportes_semanales**: `id`, `red_id`, `semana_inicio`, `semana_fin`, `total_miembros`, `total_fieles` (calculado o manual), `total_nuevos` (calculado o manual), `se_congregan`, `discipulados` (texto libre: llamadas/visitas de la semana — solo editable por líder/colíder), `se_recogio_ofrenda` (bool), `ofrenda` (monto, solo si `se_recogio_ofrenda`), `material_id`, `capitulo_actual`, `comentario_lider`, `dia_habitual` (bool — la red se reunió en su día/hora de siempre), `fecha_reunion`/`hora_reunion` (solo si `dia_habitual = false`), `creado_por`, `creado_en`
+- **asistencia_semanal**: `id`, `reporte_id`, `miembro_id` (nulo si es alguien nuevo), `nombre` (si es nuevo), `tipo` (`fiel` | `nuevo`), `asistio` (bool), `invitado_por` (FK a `miembros_red` — qué miembro del roster trajo a esta visita, solo aplica cuando `tipo = 'nuevo'`) — "faltaron" = miembros del roster sin registro de asistencia esa semana
+- **peticiones_oracion**: `id`, `reporte_id`, `miembro_id` (nulo si es de alguien fuera del roster), `nombre` (si es de alguien fuera del roster), `descripcion` (máx. 500 caracteres), `creado_en`
 - **fotos_reporte**: `id`, `reporte_id`, `ruta_storage`, `subida_por` (máx. 2 filas por `reporte_id`, validar en la capa de aplicación)
 - **usuarios/perfiles**: `id` (ligado a `auth.users` de Supabase), `nombre_completo`, `rol` (`pastor` | `admin` | `mentor` | `lider`), `red_id` (si es líder), `mentor_id` (si es mentor)
+
+**Nota importante sobre "colíder"**: no es un rol nuevo. `perfiles.red_id` no tiene restricción de unicidad — el admin simplemente crea una segunda cuenta con `rol = 'lider'` apuntando a la misma red, y automáticamente tiene permisos idénticos al líder sobre esa red (las políticas de RLS ya funcionan así, sin ningún cambio). El campo `redes.colider` (texto) sigue existiendo como referencia/etiqueta, independiente de si esa persona tiene o no una cuenta propia.
+
+**Función `miembro_es_fiel(miembro_id, meses default 3)`**: calcula al vuelo (no se guarda) si un miembro asistió a más de la mitad de los reportes de su red en los últimos N meses. Esto es distinto del campo `asistencia_semanal.tipo = 'fiel'`, que solo indica "es miembro del roster (no visita) que asistió esa semana" — la fidelidad real de largo plazo se consulta con esta función, no se infiere del `tipo` semanal.
+
+**Perfil de miembro** (clic en el nombre desde el resumen semanal, visible para mentor/líder/colíder/pastor — ya cubierto por las políticas de RLS existentes de `miembros_red`, sin cambios): `nombre`, `apellido`, `correo`, `fecha_nacimiento`, `direccion`, `telefono`. La edad se calcula al momento de mostrarla (`extract(year from age(fecha_nacimiento))`), nunca se guarda como columna fija para que no quede desactualizada.
 
 El resumen general semanal (total de miembros, asistencia total a redes, total de nuevos, asistencia total a la congregación, total de ofrendas) es una **vista calculada** (SQL view o agregación en la capa de aplicación) que suma `reportes_semanales` de esa semana — no es una tabla que alguien llena a mano.
 
@@ -104,6 +111,22 @@ Construido y probado de punta a punta contra el Supabase real (login → formula
 - **Líder de prueba** (datos ficticios, para pruebas): `lider.prueba@example.com` / `PruebaLider2026!`, asignado a "Red de Prueba" (3 miembros ficticios). Reemplazar por datos reales cuando se cargue la primera red real.
 
 **Huecos que quedaron fuera de esta pasada** (no construidos aún, no son bugs): edición/borrado de reportes ya enviados, catálogo de `materiales`/`temas_material` (está vacío — el selector de material en el formulario no tiene opciones todavía), panel de consulta para mentor/pastor/admin, y el despliegue a Vercel.
+
+## Funcionalidades avanzadas pedidas por el equipo (2026-09-03) — solo esquema, falta la UI
+
+El equipo pidió un lote de cambios adicionales sobre el reporte semanal. Ya están **aplicados y probados en la base de datos real** ([`supabase/migrations/0003_funcionalidades_avanzadas.sql`](supabase/migrations/0003_funcionalidades_avanzadas.sql), advisor de seguridad/rendimiento limpio salvo el pendiente de "leaked password protection" — ver abajo), pero **el formulario (`/reportar`) todavía no expone estos campos nuevos en la interfaz** — eso es el siguiente paso.
+
+- **Colíder con cuenta propia**: ver nota en "Modelo de datos" arriba — no es un rol nuevo, es una segunda cuenta `rol = 'lider'` en la misma red.
+- **Ofrenda**: ahora es `se_recogio_ofrenda` (sí/no) + `ofrenda` (monto, solo si hubo).
+- **Cambio de día de reunión**: `dia_habitual` (bool) + `fecha_reunion`/`hora_reunion` si la respuesta es "no".
+- **Visitas con trazabilidad**: `asistencia_semanal.invitado_por` conecta a la visita nueva con el miembro del roster que la trajo (validado por trigger: debe ser de la misma red).
+- **Petición de oración**: tabla `peticiones_oracion`, ligada a un miembro específico (o a un nombre si es de alguien fuera del roster), máximo 500 caracteres.
+- **Perfil de miembro**: `miembros_red` ganó `apellido`, `correo`, `fecha_nacimiento`, `direccion` — pensado para un modal/popup al hacer clic en el nombre del miembro en el resumen semanal.
+- **Miembro fiel real**: función `miembro_es_fiel(miembro_id, meses default 3)` — ver nota arriba.
+
+**Pendiente de decisión que quedó sin resolver en esta pasada**: el máximo de 500 caracteres para `peticiones_oracion.descripcion` fue una elección razonable mía, no confirmada explícitamente por el equipo — ajustar el `check` de la migración si quieren otro límite.
+
+**Otro toggle pendiente en el dashboard de Supabase** (igual que el de registro público, no se puede hacer por SQL): `Authentication → Policies → Password` tiene la protección contra contraseñas filtradas (HaveIBeenPwned) desactivada — el advisor de seguridad lo marca como advertencia. Recomendado activarlo antes de invitar líderes reales.
 
 ## Estado del scaffold de Next.js (2026-08-31)
 
