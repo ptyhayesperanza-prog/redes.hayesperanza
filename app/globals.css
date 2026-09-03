@@ -13,7 +13,9 @@
   --surface-border: rgba(110, 79, 163, 0.12);
 
   --accent: #6e4fa3; /* violeta, acento principal */
+  --accent-deep: #3d2a63; /* violeta oscuro, para el panel de marca en login/registro */
   --accent-foreground: #ffffff;
+  --gold: #c8952a; /* dorado, acento secundario decorativo */
 
   /* Colores semánticos: al día / atrasado / faltó / nuevo */
   --status-al-dia: #3f8f5f;
@@ -28,7 +30,9 @@
   --color-surface: var(--surface);
   --color-surface-border: var(--surface-border);
   --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
   --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
   --color-status-al-dia: var(--status-al-dia);
   --color-status-atrasado: var(--status-atrasado);
   --color-status-falto: var(--status-falto);
@@ -47,7 +51,9 @@
     --surface-border: rgba(255, 255, 255, 0.1);
 
     --accent: #9d7fd1;
+    --accent-deep: #1f1530;
     --accent-foreground: #17141c;
+    --gold: #d9c27e;
 
     --status-al-dia: #6fbf8a;
     --status-atrasado: #e0ab52;

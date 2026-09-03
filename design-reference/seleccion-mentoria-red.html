@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selección de Mentoría y Red</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #16261C;
+    --paper: #F6F5F0;
+    --panel: #FFFFFF;
+    --line: #E1DED3;
+    --muted: #6E7568;
+    --muted-2: #9B9C90;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+
+  body{
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: clamp(24px, 5vw, 64px) 20px 80px 20px;
+  }
+
+  .wrap{
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  .page-title{
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 500;
+    margin: 0 0 8px 0;
+  }
+
+  .page-sub{
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+    margin: 0 0 48px 0;
+  }
+
+  section{ margin-bottom: 56px; }
+
+  .section-head{
+    display:flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .section-title{
+    font-family: 'Fraunces', serif;
+    font-size: clamp(20px, 2.6vw, 24px);
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .section-status{
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .section-status.done{ color: var(--ink); }
+
+  /* ---------- Mentoría grid ---------- */
+  .mentoria-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
+  .mentoria-grid.hidden{ display: none; }
+
+  .mentoria-card{
+    --accent: #999;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    background: var(--panel);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: border-color .15s ease, box-shadow .15s ease, transform .05s ease;
+  }
+
+  .mentoria-card:hover{
+    border-color: var(--accent);
+  }
+
+  .mentoria-card:active{ transform: translateY(1px); }
+
+  .mentoria-card.selected{
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+    background: color-mix(in srgb, var(--accent) 6%, var(--panel));
+  }
+
+  .m-number{
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .card-white .m-number{
+    background: #fff;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+  }
+
+  .m-text{ min-width: 0; }
+
+  .m-name{
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .m-color{
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .m-check{
+    margin-left: auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    flex-shrink: 0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .mentoria-card.selected .m-check{
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .mentoria-card.selected .m-check::after{
+    content:"";
+    width: 5px;
+    height: 9px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg) translate(-1px,-1px);
+  }
+
+  /* ---------- Registro ---------- */
+  .register-panel{
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 22px;
+    background: var(--panel);
+  }
+
+  .register-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .field{ }
+
+  .field label{
+    display:block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .field input{
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color .15s ease;
+  }
+
+  .field input::placeholder{ color: #B7B4A8; }
+
+  .field input:focus{
+    outline: none;
+    border-color: var(--ink);
+  }
+
+  .field input.invalid{
+    border-color: #DC2626;
+  }
+
+  .field-error{
+    font-size: 12px;
+    color: #DC2626;
+    margin: 5px 0 0 0;
+    min-height: 14px;
+  }
+
+  /* ---------- Paneles bloqueados (genérico) ---------- */
+  .locked{
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .red-panel{
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 22px;
+    background: var(--panel);
+    transition: opacity .2s ease;
+  }
+
+  .lock-note{
+    font-size: 13.5px;
+    color: var(--muted-2);
+    margin: 0 0 16px 0;
+  }
+
+  .lock-note.hidden{ display: none; }
+
+  .red-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+  }
+
+  .red-grid.hidden{ display: none; }
+
+  .red-card{
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color .15s ease, background .15s ease, transform .05s ease;
+  }
+
+  .red-card:hover{ border-color: var(--ink); }
+  .red-card:active{ transform: translateY(1px); }
+
+  .red-card.selected{
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+  }
+
+  /* ---------- Resumen ---------- */
+  .summary{
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+    text-align: center;
+  }
+
+  .summary-label{
+    font-size: 12.5px;
+    text-transform: none;
+    color: var(--muted-2);
+    margin: 0 0 6px 0;
+  }
+
+  .summary-value{
+    font-family: 'Fraunces', serif;
+    font-size: clamp(17px, 2.4vw, 20px);
+    font-weight: 500;
+    color: var(--ink);
+    min-height: 28px;
+  }
+
+  .summary-value .pending{
+    color: var(--muted-2);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="page-title">Selección de mentoría y red</p>
+  <p class="page-sub">Elige primero tu mentoría y luego el número de tu red.</p>
+
+  <!-- Paso 1: Registro -->
+  <section>
+    <div class="section-head">
+      <p class="section-title">Tus datos</p>
+      <p class="section-status" id="status-registro">Sin completar</p>
+    </div>
+
+    <div class="register-panel">
+      <div class="register-grid">
+        <div class="field">
+          <label for="input-nombre">Nombre y apellido</label>
+          <input id="input-nombre" type="text" placeholder="Tu nombre completo" autocomplete="name">
+          <p class="field-error" id="error-nombre"></p>
+        </div>
+        <div class="field">
+          <label for="input-correo">Correo electrónico</label>
+          <input id="input-correo" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+          <p class="field-error" id="error-correo"></p>
+        </div>
+        <div class="field">
+          <label for="input-celular">Celular</label>
+          <input id="input-celular" type="tel" placeholder="6000-0000" autocomplete="tel">
+          <p class="field-error" id="error-celular"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Paso 2: Mentoría -->
+  <section>
+    <div class="section-head">
+      <p class="section-title">Mentoría</p>
+      <p class="section-status" id="status-mentoria">Sin seleccionar</p>
+    </div>
+
+    <div class="red-panel locked" id="mentoria-panel">
+      <p class="lock-note" id="mentoria-lock-note">Completa tus datos para elegir tu mentoría.</p>
+      <div class="mentoria-grid hidden" id="mentoria-grid"></div>
+    </div>
+  </section>
+
+  <!-- Paso 3: Red -->
+  <section>
+    <div class="section-head">
+      <p class="section-title">Número de red</p>
+      <p class="section-status" id="status-red">Sin seleccionar</p>
+    </div>
+
+    <div class="red-panel locked" id="red-panel">
+      <p class="lock-note" id="lock-note">Selecciona primero tu mentoría para elegir tu red.</p>
+      <div class="red-grid hidden" id="red-grid"></div>
+    </div>
+  </section>
+
+  <!-- Resumen -->
+  <div class="summary">
+    <p class="summary-label">Tu selección</p>
+    <p class="summary-value" id="summary-text"><span class="pending">Completa tus datos para comenzar</span></p>
+  </div>
+</div>
+
+<script>
+  const mentorias = [
+    { n: 1, name: "Perla y Edwin Rodríguez", color: "morado",   hex: "#6B46C1" },
+    { n: 2, name: "César y Yara Córdoba",     color: "turquesa", hex: "#0D9488" },
+    { n: 3, name: "Norma de Torrijos",        color: "blanco",   hex: "#16261C", white: true },
+    { n: 4, name: "Migdalia de Delgado",      color: "rojo",     hex: "#DC2626" },
+    { n: 5, name: "Lucy de Candanedo",        color: "verde",    hex: "#16A34A" },
+    { n: 6, name: "Pastor Eliel García",      color: "azul",     hex: "#2563EB" },
+    { n: 7, name: "Pastor Marco Gómez",       color: "naranja",  hex: "#EA580C" },
+  ];
+
+  const mentoriaGrid = document.getElementById('mentoria-grid');
+  const mentoriaPanel = document.getElementById('mentoria-panel');
+  const mentoriaLockNote = document.getElementById('mentoria-lock-note');
+  const redGrid = document.getElementById('red-grid');
+  const redPanel = document.getElementById('red-panel');
+  const lockNote = document.getElementById('lock-note');
+  const statusRegistro = document.getElementById('status-registro');
+  const statusMentoria = document.getElementById('status-mentoria');
+  const statusRed = document.getElementById('status-red');
+  const summaryText = document.getElementById('summary-text');
+
+  const inputNombre = document.getElementById('input-nombre');
+  const inputCorreo = document.getElementById('input-correo');
+  const inputCelular = document.getElementById('input-celular');
+  const errorNombre = document.getElementById('error-nombre');
+  const errorCorreo = document.getElementById('error-correo');
+  const errorCelular = document.getElementById('error-celular');
+
+  let selectedMentoria = null;
+  let selectedRed = null;
+  let registroCompleto = false;
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phonePattern = /^[0-9+\-\s]{7,}$/;
+
+  function validarRegistro(showErrors){
+    const nombreOk = inputNombre.value.trim().length >= 3;
+    const correoOk = emailPattern.test(inputCorreo.value.trim());
+    const celularOk = phonePattern.test(inputCelular.value.trim());
+
+    if (showErrors){
+      inputNombre.classList.toggle('invalid', !nombreOk && inputNombre.value.length > 0);
+      inputCorreo.classList.toggle('invalid', !correoOk && inputCorreo.value.length > 0);
+      inputCelular.classList.toggle('invalid', !celularOk && inputCelular.value.length > 0);
+
+      errorNombre.textContent = (!nombreOk && inputNombre.value.length > 0) ? 'Escribe tu nombre y apellido.' : '';
+      errorCorreo.textContent = (!correoOk && inputCorreo.value.length > 0) ? 'Escribe un correo válido.' : '';
+      errorCelular.textContent = (!celularOk && inputCelular.value.length > 0) ? 'Escribe un número de celular válido.' : '';
+    }
+
+    const completo = nombreOk && correoOk && celularOk;
+
+    if (completo && !registroCompleto){
+      registroCompleto = true;
+      statusRegistro.textContent = 'Datos completos';
+      statusRegistro.classList.add('done');
+      mentoriaPanel.classList.remove('locked');
+      mentoriaLockNote.classList.add('hidden');
+      mentoriaGrid.classList.remove('hidden');
+    } else if (!completo && registroCompleto){
+      registroCompleto = false;
+      statusRegistro.textContent = 'Sin completar';
+      statusRegistro.classList.remove('done');
+      mentoriaPanel.classList.add('locked');
+      mentoriaLockNote.classList.remove('hidden');
+      mentoriaGrid.classList.add('hidden');
+    }
+
+    updateSummary();
+  }
+
+  [inputNombre, inputCorreo, inputCelular].forEach(input => {
+    input.addEventListener('input', () => validarRegistro(true));
+    input.addEventListener('blur', () => validarRegistro(true));
+  });
+
+  mentorias.forEach(m => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'mentoria-card' + (m.white ? ' card-white' : '');
+    card.style.setProperty('--accent', m.hex);
+    card.setAttribute('data-n', m.n);
+    card.innerHTML = `
+      <span class="m-number">${m.n}</span>
+      <span class="m-text">
+        <span class="m-name">${m.name}</span>
+        <span class="m-color">(${m.color})</span>
+      </span>
+      <span class="m-check"></span>
+    `;
+    card.addEventListener('click', () => selectMentoria(m, card));
+    mentoriaGrid.appendChild(card);
+  });
+
+  for (let i = 1; i <= 8; i++){
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'red-card';
+    card.textContent = `Red #${i}`;
+    card.setAttribute('data-n', i);
+    card.addEventListener('click', () => selectRed(i, card));
+    redGrid.appendChild(card);
+  }
+
+  function selectMentoria(m, card){
+    selectedMentoria = m;
+    document.querySelectorAll('.mentoria-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    statusMentoria.textContent = `Mentoría ${m.n} seleccionada`;
+    statusMentoria.classList.add('done');
+
+    redPanel.classList.remove('locked');
+    lockNote.classList.add('hidden');
+    redGrid.classList.remove('hidden');
+
+    updateSummary();
+  }
+
+  function selectRed(n, card){
+    selectedRed = n;
+    document.querySelectorAll('.red-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    statusRed.textContent = `Red #${n} seleccionada`;
+    statusRed.classList.add('done');
+    updateSummary();
+  }
+
+  function updateSummary(){
+    if (registroCompleto && selectedMentoria && selectedRed){
+      summaryText.innerHTML = `${inputNombre.value.trim()} — Mentoría ${selectedMentoria.n} · ${selectedMentoria.name} (${selectedMentoria.color}) — Red #${selectedRed}`;
+    } else if (registroCompleto && selectedMentoria){
+      summaryText.innerHTML = `<span class="pending">Ahora elige tu número de red</span>`;
+    } else if (registroCompleto){
+      summaryText.innerHTML = `<span class="pending">Ahora elige tu mentoría</span>`;
+    } else {
+      summaryText.innerHTML = `<span class="pending">Completa tus datos para comenzar</span>`;
+    }
+  }
+</script>
+
+</body>
+</html>

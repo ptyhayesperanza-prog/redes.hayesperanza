@@ -14,7 +14,7 @@ export default async function UsuariosPendientesPage() {
   const [{ data: pendientes }, { data: redes }, { data: mentores }] = await Promise.all([
     supabase.rpc("listar_usuarios_pendientes"),
     supabase.from("redes").select("id, nombre").order("nombre"),
-    supabase.from("mentores").select("id, nombre").order("nombre"),
+    supabase.from("mentores").select("id, nombre, color").order("nombre"),
   ]);
 
   return (
@@ -25,7 +25,8 @@ export default async function UsuariosPendientesPage() {
         </h1>
         <p className="mt-1 mb-6 text-sm opacity-80">
           Se registraron pero todavía no tienen rol ni red asignada — sin
-          eso no pueden ver ningún dato.
+          eso no pueden ver ningún dato. La sugerencia es lo que ellos
+          indicaron al registrarse; confírmala o cámbiala antes de asignar.
         </p>
 
         {!pendientes || pendientes.length === 0 ? (
@@ -38,6 +39,9 @@ export default async function UsuariosPendientesPage() {
                 usuarioId={p.id}
                 email={p.email ?? ""}
                 nombreSugerido={p.nombre_sugerido}
+                rolSugerido={p.rol_sugerido}
+                redIdSugerida={p.red_id_sugerida}
+                mentorIdSugerido={p.mentor_id_sugerido}
                 redes={redes ?? []}
                 mentores={mentores ?? []}
               />

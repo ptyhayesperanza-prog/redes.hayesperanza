@@ -141,6 +141,28 @@ El equipo pidió que líderes, colíderes, mentores y pastor puedan crear su pro
 
 **Cuenta de prueba nueva**: `mentor.prueba@example.com` / `MentorPrueba2026!`, ya aprobada con rol mentor (mentor real: Cesar y Yara Córdoba). También queda `pendiente.prueba@example.com` / `PendientePrueba2026!` sin aprobar, a propósito, para poder ver la pantalla de "cuenta pendiente" — bórrala cuando ya no haga falta de referencia.
 
+## Rediseño visual de login/registro + selector de mentoría/red (2026-09-03)
+
+El equipo compartió dos mockups HTML propios en `components/` (`redes-de-crecimiento.html` = login/signup con panel de marca verde; `seleccion-mentoria-red.html` = wizard de registro con tarjetas para elegir mentoría y red) como base visual, pidiendo cambiar el verde por morado/lila.
+
+**Conflicto real encontrado y resuelto con el equipo**: `seleccion-mentoria-red.html` dejaba que la persona que se registra **eligiera directamente** su mentoría y su red, sin aprobación — exactamente el hueco de seguridad que se cerró en la sección anterior. Se acordó una tercera vía: el usuario elige en el formulario (UX del mockup, intacta), pero eso queda guardado como **sugerencia** en `raw_user_meta_data` de `auth.users` (`rol_sugerido`, `red_id_sugerida`, `mentor_id_sugerido`) — sigue sin dar ningún acceso real. El admin ve la sugerencia en `/admin/usuarios` y la confirma o la cambia antes de asignar de verdad. Ver [`0006_sugerencia_rol_red_en_registro.sql`](supabase/migrations/0006_sugerencia_rol_red_en_registro.sql).
+
+**Logo real encontrado**: el mockup traía el logo oficial de "Hay Esperanza" embebido como base64 (PNG blanco 1080×1080) — se extrajo a [`public/logo-hay-esperanza.png`](public/logo-hay-esperanza.png) en vez de dejarlo como texto gigante dentro del código.
+
+**Qué se construyó**:
+- Tokens nuevos en `app/globals.css`: `--accent-deep` (para el degradado del panel de marca) y `--gold` (acento secundario decorativo, tomado del mockup). El verde (`--green`/`--green-deep`) del mockup se mapeó 1:1 a los tokens violeta ya existentes del proyecto.
+- [`components/AuthBrandPanel.tsx`](components/AuthBrandPanel.tsx): el panel de marca izquierdo (degradado violeta, logo, wordmark, arte de red decorativo en SVG, cita) — reutilizado en `/login` y `/registro`. Se oculta en móvil a favor de `AuthMobileHeader` (logo + wordmark compactos), igual que el mockup original.
+- [`components/CardPicker.tsx`](components/CardPicker.tsx): selector de tarjetas genérico y reutilizable (usado para elegir rol, red, y mentor tanto en `/registro` como en `/admin/usuarios`) — reemplaza los `<select>` planos que tenía antes el panel de admin.
+- [`lib/colorMentor.ts`](lib/colorMentor.ts): mapeo de los 7 nombres de color reales de los mentores (Morado, Turquesa, Blanco, Rojo, Verde, Azul, Naranja peach) a un hex, para pintar cada tarjeta de mentor con su color de identificación.
+- `/registro` ahora es un wizard progresivo: datos básicos → rol (tarjetas) → red (si líder) o mentor (si mentor), con las listas reales de `redes`/`mentores` — no hay paso extra si el rol es pastor.
+- `/admin/usuarios` prellenar las tarjetas con la sugerencia (editable) en vez de empezar en blanco.
+
+**Funciones públicas nuevas** (a propósito, sin gate de admin — solo exponen `id`+`nombre`(+`color`), nada sensible como dirección/horario/roster): `listar_redes_publico()` y `listar_mentores_publico()`, otorgadas a `anon` y `authenticated` — necesarias porque alguien en `/registro` (sin sesión, o con sesión pero sin perfil) no puede leer las tablas reales `redes`/`mentores` (correctamente restringidas por RLS). El advisor de seguridad marca 4 warnings por esto (`anon`/`authenticated` pueden ejecutar una función security definer) — son **esperados y aceptados**, igual que los de `listar_usuarios_pendientes()`.
+
+**Bug real encontrado y corregido**: `DROP FUNCTION` + `CREATE FUNCTION` reinicia los grants de Supabase a su default (`PUBLIC`, `anon` y `authenticated` quedan con `EXECUTE` otra vez) — hubo que revocar de los **tres** explícitamente (revocar solo de `anon` no alcanza si `PUBLIC` todavía tiene el grant, porque `anon` hereda de `PUBLIC`). Ya documentado como comentario en la migración para no repetir el error.
+
+Probado de punta a punta en el navegador: layout de dos paneles con el logo real, wizard de registro completo (datos → rol → red, con la red real de la base de datos), y panel de admin mostrando y pre-llenando la sugerencia correctamente (verificado también contra la base de datos, no solo visualmente).
+
 **Nota de límite de envíos de correo**: el servicio de correo integrado de Supabase (gratis) tiene un límite bajo de envíos por hora — ya lo agotamos varias veces esta sesión probando recuperación de contraseña y registro. Si el equipo prueba registro/recuperación real y no llega el correo, probablemente sea eso, no un bug. Se resuelve configurando un proveedor de correo propio (SMTP) en producción — pendiente, no urgente mientras estemos en pruebas.
 
 ## Estado del scaffold de Next.js (2026-08-31)

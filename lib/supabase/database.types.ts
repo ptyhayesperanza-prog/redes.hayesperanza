@@ -440,13 +440,31 @@ export type Database = {
       }
     }
     Functions: {
+      listar_mentores_publico: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          color: string
+          id: string
+          nombre: string
+        }[]
+      }
+      listar_redes_publico: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          nombre: string
+        }[]
+      }
       listar_usuarios_pendientes: {
         Args: Record<PropertyKey, never>
         Returns: {
           created_at: string
           email: string
           id: string
+          mentor_id_sugerido: string
           nombre_sugerido: string
+          red_id_sugerida: string
+          rol_sugerido: string
         }[]
       }
       miembro_es_fiel: {

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { GlassCard } from "@/components/GlassCard";
+import { AuthBrandPanel, AuthMobileHeader } from "@/components/AuthBrandPanel";
 import { RegistroForm } from "./RegistroForm";
 
 export default async function RegistroPage() {
@@ -12,17 +12,20 @@ export default async function RegistroPage() {
   if (user) redirect("/");
 
   return (
-    <main className="flex min-h-full flex-1 items-center justify-center p-8">
-      <GlassCard className="w-full max-w-sm">
-        <h1 className="font-[family-name:var(--font-fraunces)] text-2xl text-[var(--accent)]">
-          Crear cuenta
-        </h1>
-        <p className="mt-1 mb-6 text-sm opacity-80">
-          Para líderes, colíderes, mentores y pastor. Un admin tiene que
-          asignarte tu rol y tu red antes de que puedas ver o reportar nada.
-        </p>
-        <RegistroForm />
-      </GlassCard>
+    <main className="grid min-h-full flex-1 lg:grid-cols-[1.1fr_1fr]">
+      <AuthBrandPanel />
+
+      <div className="flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-sm">
+          <AuthMobileHeader />
+
+          <h1 className="font-[family-name:var(--font-fraunces)] text-2xl">Únete a tu red</h1>
+          <p className="mt-1 mb-6 text-sm opacity-70">
+            Crea tu cuenta y avísale al admin para que te confirme.
+          </p>
+          <RegistroForm />
+        </div>
+      </div>
     </main>
   );
 }

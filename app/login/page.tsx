@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { GlassCard } from "@/components/GlassCard";
+import { AuthBrandPanel, AuthMobileHeader } from "@/components/AuthBrandPanel";
 import { LoginForm } from "./LoginForm";
 
 export default async function LoginPage() {
@@ -12,14 +12,22 @@ export default async function LoginPage() {
   if (user) redirect("/");
 
   return (
-    <main className="flex min-h-full flex-1 items-center justify-center p-8">
-      <GlassCard className="w-full max-w-sm">
-        <h1 className="font-[family-name:var(--font-fraunces)] text-2xl text-[var(--accent)]">
-          Redes Hay Esperanza
-        </h1>
-        <p className="mt-1 mb-6 text-sm opacity-80">Inicia sesión para continuar.</p>
-        <LoginForm />
-      </GlassCard>
+    <main className="grid min-h-full flex-1 lg:grid-cols-[1.1fr_1fr]">
+      <AuthBrandPanel />
+
+      <div className="flex items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-sm">
+          <AuthMobileHeader />
+
+          <h1 className="font-[family-name:var(--font-fraunces)] text-2xl">
+            Bienvenido de nuevo
+          </h1>
+          <p className="mt-1 mb-6 text-sm opacity-70">
+            Ingresa tus datos para continuar en tu red.
+          </p>
+          <LoginForm />
+        </div>
+      </div>
     </main>
   );
 }
