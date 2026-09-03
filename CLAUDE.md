@@ -112,9 +112,9 @@ Construido y probado de punta a punta contra el Supabase real (login → formula
 
 **Huecos que quedaron fuera de esta pasada** (no construidos aún, no son bugs): edición/borrado de reportes ya enviados, catálogo de `materiales`/`temas_material` (está vacío — el selector de material en el formulario no tiene opciones todavía), panel de consulta para mentor/pastor/admin, y el despliegue a Vercel.
 
-## Funcionalidades avanzadas pedidas por el equipo (2026-09-03) — solo esquema, falta la UI
+## Funcionalidades avanzadas pedidas por el equipo (2026-09-03)
 
-El equipo pidió un lote de cambios adicionales sobre el reporte semanal. Ya están **aplicados y probados en la base de datos real** ([`supabase/migrations/0003_funcionalidades_avanzadas.sql`](supabase/migrations/0003_funcionalidades_avanzadas.sql), advisor de seguridad/rendimiento limpio salvo el pendiente de "leaked password protection" — ver abajo), pero **el formulario (`/reportar`) todavía no expone estos campos nuevos en la interfaz** — eso es el siguiente paso.
+El equipo pidió un lote de cambios adicionales sobre el reporte semanal. Aplicados en la base de datos real ([`supabase/migrations/0003_funcionalidades_avanzadas.sql`](supabase/migrations/0003_funcionalidades_avanzadas.sql)) **y ya expuestos en el formulario** — ver la sección "Formulario con datos por miembro" más abajo para el estado final de la UI.
 
 - **Colíder con cuenta propia**: ver nota en "Modelo de datos" arriba — no es un rol nuevo, es una segunda cuenta `rol = 'lider'` en la misma red.
 - **Ofrenda**: ahora es `se_recogio_ofrenda` (sí/no) + `ofrenda` (monto, solo si hubo).
@@ -164,6 +164,31 @@ El equipo compartió dos mockups HTML propios en `components/` (`redes-de-crecim
 Probado de punta a punta en el navegador: layout de dos paneles con el logo real, wizard de registro completo (datos → rol → red, con la red real de la base de datos), y panel de admin mostrando y pre-llenando la sugerencia correctamente (verificado también contra la base de datos, no solo visualmente).
 
 **Nota de límite de envíos de correo**: el servicio de correo integrado de Supabase (gratis) tiene un límite bajo de envíos por hora — ya lo agotamos varias veces esta sesión probando recuperación de contraseña y registro. Si el equipo prueba registro/recuperación real y no llega el correo, probablemente sea eso, no un bug. Se resuelve configurando un proveedor de correo propio (SMTP) en producción — pendiente, no urgente mientras estemos en pruebas.
+
+## Formulario con datos por miembro (2026-09-03)
+
+El equipo aclaró que varios campos que estaban a nivel de todo el reporte en realidad deben capturarse **por cada miembro del roster**. Se resolvió campo por campo (no todos tenían el mismo sentido "por persona"):
+
+- **Se congregan**: pasó de número manual a un check por miembro (`asistencia_semanal.se_congrega`) — el total (`reportes_semanales.se_congregan`) ahora se calcula solo, contando los checks, igual que `total_fieles`.
+- **Ofrenda por persona**: check `asistencia_semanal.dio_ofrenda` (solo si dio o no, **sin monto individual**, por privacidad). El monto total de la ofrenda de toda la red se queda igual que antes (`se_recogio_ofrenda` + `ofrenda`), sin dividir por persona.
+- **Material de estudio / capítulo**: se quedó a nivel de red — no tenía sentido que cada miembro fuera en un capítulo distinto de un estudio grupal.
+- **Discipulados y comentario**: se agregaron `asistencia_semanal.discipulado` y `asistencia_semanal.comentario_miembro` (≤200 caracteres cada uno) como notas **por persona**. Se conservaron también los campos generales `reportes_semanales.discipulados`/`comentario_lider` para una nota general de la semana que no es sobre alguien en particular — no se eliminaron, se agregó la versión por persona además.
+
+**Cambio de diseño importante**: antes "faltó" significaba que el miembro no tenía ninguna fila en `asistencia_semanal` esa semana. Ahora un miembro puede tener fila (con nota de discipulado, por ejemplo) sin haber asistido — el líder puede registrar que llamó a alguien que faltó. La fila se crea si hay *cualquier* dato (asistió, se congrega, dio ofrenda, o alguna nota); si no hay absolutamente nada, sigue sin crearse fila, igual que antes. Ver [`0007_datos_por_miembro_en_reporte.sql`](supabase/migrations/0007_datos_por_miembro_en_reporte.sql).
+
+**El formulario `/reportar` quedó reconstruido por completo**, ahora sí exponiendo todo lo de las dos secciones anteriores:
+- Encabezado llamativo con el día/hora/dirección habitual de la red.
+- Toggle "¿se reunió en su día habitual?" con fecha/hora reales si la respuesta es no.
+- Cada miembro del roster en su propia tarjeta ([`MiembroRow.tsx`](app/reportar/MiembroRow.tsx)) con los 3 checks + las 2 notas cortas, y su nombre es clicable — abre [`MemberProfileModal.tsx`](app/reportar/MemberProfileModal.tsx) con apellido/edad/teléfono/correo/dirección/cumpleaños.
+- Visitas nuevas con selector de "quién la invitó" (roster).
+- Ofrenda de la red, material/capítulo, notas generales.
+- Peticiones de oración dinámicas (persona del roster o nombre libre + descripción).
+
+**Bugs reales encontrados y corregidos**:
+- **Cumpleaños se mostraba un día antes** (13 de mayo en vez de 14): `new Date("1990-05-14")` interpreta la fecha como medianoche UTC; en una zona horaria detrás de UTC (Panamá) eso cae en el día anterior al convertir a hora local. Se parsea la fecha a mano (`parsearFechaLocal` en `MemberProfileModal.tsx`) en vez de dejar que el constructor de `Date` asuma UTC. **Aplica a cualquier campo `date` que se muestre — revisar si aparece en otro lado.**
+- **Insert masivo con columnas `not null` fallaba para las visitas**: al insertar en una sola llamada filas de miembros (que sí traen `se_congrega`/`dio_ofrenda`) junto con filas de visitas (que no las traían), Supabase arma un solo INSERT con la unión de columnas de todas las filas — a las filas que no traen una clave les manda `NULL` explícito, no el valor por defecto de la columna. Como esas columnas son `not null default false`, el `NULL` explícito violaba la restricción. Se corrigió repitiendo los valores por defecto a mano en cada fila del array antes de insertar. **Aplica a cualquier insert masivo futuro con arrays de objetos de forma distinta.**
+
+Probado de punta a punta en el navegador contra el Supabase real: los 3 checks y las 2 notas por miembro, la visita con su invitador, la ofrenda de red, el material/capítulo, las notas generales, y una petición de oración — todo verificado también contra la base de datos (no solo visualmente). Se confirmó que un miembro sin ningún dato marcado no genera fila (sigue "faltando" correctamente).
 
 ## Estado del scaffold de Next.js (2026-08-31)
 

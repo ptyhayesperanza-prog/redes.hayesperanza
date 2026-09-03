@@ -17,29 +17,41 @@ export type Database = {
       asistencia_semanal: {
         Row: {
           asistio: boolean
+          comentario_miembro: string | null
+          dio_ofrenda: boolean
+          discipulado: string | null
           id: string
           invitado_por: string | null
           miembro_id: string | null
           nombre: string | null
           reporte_id: string
+          se_congrega: boolean
           tipo: Database["public"]["Enums"]["tipo_asistencia"]
         }
         Insert: {
           asistio: boolean
+          comentario_miembro?: string | null
+          dio_ofrenda?: boolean
+          discipulado?: string | null
           id?: string
           invitado_por?: string | null
           miembro_id?: string | null
           nombre?: string | null
           reporte_id: string
+          se_congrega?: boolean
           tipo: Database["public"]["Enums"]["tipo_asistencia"]
         }
         Update: {
           asistio?: boolean
+          comentario_miembro?: string | null
+          dio_ofrenda?: boolean
+          discipulado?: string | null
           id?: string
           invitado_por?: string | null
           miembro_id?: string | null
           nombre?: string | null
           reporte_id?: string
+          se_congrega?: boolean
           tipo?: Database["public"]["Enums"]["tipo_asistencia"]
         }
         Relationships: [

@@ -26,10 +26,14 @@ export default async function ReportarPage() {
   const supabase = await createClient();
 
   const [{ data: red }, { data: roster }, { data: materiales }] = await Promise.all([
-    supabase.from("redes").select("nombre").eq("id", perfil.red_id).single(),
+    supabase
+      .from("redes")
+      .select("nombre, dia_reunion, horario, direccion")
+      .eq("id", perfil.red_id)
+      .single(),
     supabase
       .from("miembros_red")
-      .select("id, nombre, telefono")
+      .select("id, nombre, apellido, correo, telefono, direccion, fecha_nacimiento")
       .eq("red_id", perfil.red_id)
       .eq("activo", true)
       .order("nombre"),
@@ -44,6 +48,7 @@ export default async function ReportarPage() {
         </h1>
         <p className="mt-1 mb-6 text-sm opacity-80">{perfil.nombre_completo}</p>
         <ReporteForm
+          red={red ?? { nombre: "tu red", dia_reunion: null, horario: null, direccion: null }}
           roster={roster ?? []}
           materiales={materiales ?? []}
           semana={semanaActual()}
