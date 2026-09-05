@@ -190,6 +190,15 @@ El equipo aclaró que varios campos que estaban a nivel de todo el reporte en re
 
 Probado de punta a punta en el navegador contra el Supabase real: los 3 checks y las 2 notas por miembro, la visita con su invitador, la ofrenda de red, el material/capítulo, las notas generales, y una petición de oración — todo verificado también contra la base de datos (no solo visualmente). Se confirmó que un miembro sin ningún dato marcado no genera fila (sigue "faltando" correctamente).
 
+## Carga real de mentorías, líderes y numeración de redes (2026-09-04)
+
+El equipo entregó la lista real de las 30 redes activas (mentoría → líder → número), aplicada en [`supabase/migrations/0008_carga_real_redes_y_mentores.sql`](supabase/migrations/0008_carga_real_redes_y_mentores.sql). Reemplaza el estado anterior en que solo existía "Red de Prueba" (que se dejó intacta — la usan las cuentas de prueba).
+
+- **Nuevo campo `redes.lider_referencia` (texto)**: la mayoría de estos líderes reales todavía no tiene cuenta creada, así que no hay ninguna fila en `perfiles` que los identifique todavía (eso solo pasa cuando el líder se autoregistra y el admin lo aprueba — ver "Autoregistro" arriba). Este campo es **solo de referencia/visualización** (igual que `colider`) para que las tarjetas de red y el selector de `/registro` muestren su nombre mientras tanto; no da ningún permiso ni reemplaza a `perfiles.red_id` como fuente de verdad una vez que el líder real se registra.
+- Convención de `redes.nombre`: `"Red 0XX"` (con el número tal cual lo usa el equipo, ej. "Red 016").
+- `listar_redes_publico()` ahora también devuelve `mentor_id` y `lider_referencia` (antes solo `id`+`nombre`) — necesario para agrupar las redes por mentoría en el selector de `/registro` (con 30 redes, una lista plana ya no alcanza) y para que el líder reconozca su propia tarjeta por nombre, no solo por número. Se actualizó también `/admin/usuarios` (que lee `redes` directo, no vía la función) para el mismo flujo de dos pasos (mentoría → red).
+- Conteo cargado por mentoría: Lucy de Candanedo (7), Cesar y Yara Córdoba (5), Migdalia de Delgado (3), Pastor Eliel (6), Pastor Marco (1), Perla y Edwin Rodríguez (4), Norma de Torrijos (4).
+
 ## Estado del scaffold de Next.js (2026-08-31)
 
 Ya está armado y verificado corriendo contra el Supabase real:

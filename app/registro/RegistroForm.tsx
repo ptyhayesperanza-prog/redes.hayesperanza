@@ -10,7 +10,7 @@ const inputClass =
   "rounded-lg border bg-transparent px-3 py-2 outline-none focus:ring-2 w-full";
 const inputStyle = { borderColor: "var(--surface-border)" };
 
-type Red = { id: string; nombre: string };
+type Red = { id: string; nombre: string; mentor_id: string | null; lider_referencia: string | null };
 type Mentor = { id: string; nombre: string; color: string | null };
 type Rol = "lider" | "mentor" | "pastor";
 
@@ -19,6 +19,7 @@ export function RegistroForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rol, setRol] = useState<Rol | null>(null);
+  const [redMentorId, setRedMentorId] = useState<string | null>(null);
   const [redId, setRedId] = useState<string | null>(null);
   const [mentorId, setMentorId] = useState<string | null>(null);
 
@@ -163,9 +164,35 @@ export function RegistroForm() {
 
       {rol === "lider" && (
         <div className="flex flex-col gap-3">
+          <p className="text-sm opacity-80">¿Cuál es tu mentoría?</p>
+          <CardPicker
+            items={mentores.map((m) => ({
+              id: m.id,
+              label: m.nombre,
+              sublabel: m.color ?? undefined,
+              colorHex: colorMentorHex(m.color),
+            }))}
+            selectedId={redMentorId}
+            onSelect={(id) => {
+              setRedMentorId(id);
+              setRedId(null);
+            }}
+            numbered
+          />
+        </div>
+      )}
+
+      {rol === "lider" && redMentorId && (
+        <div className="flex flex-col gap-3">
           <p className="text-sm opacity-80">¿Cuál es tu red?</p>
           <CardPicker
-            items={redes.map((r) => ({ id: r.id, label: r.nombre }))}
+            items={redes
+              .filter((r) => r.mentor_id === redMentorId)
+              .map((r) => ({
+                id: r.id,
+                label: r.nombre,
+                sublabel: r.lider_referencia ?? undefined,
+              }))}
             selectedId={redId}
             onSelect={setRedId}
             numbered

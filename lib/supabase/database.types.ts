@@ -281,6 +281,7 @@ export type Database = {
           direccion: string | null
           horario: string | null
           id: string
+          lider_referencia: string | null
           mentor_id: string | null
           nombre: string
         }
@@ -292,6 +293,7 @@ export type Database = {
           direccion?: string | null
           horario?: string | null
           id?: string
+          lider_referencia?: string | null
           mentor_id?: string | null
           nombre: string
         }
@@ -303,6 +305,7 @@ export type Database = {
           direccion?: string | null
           horario?: string | null
           id?: string
+          lider_referencia?: string | null
           mentor_id?: string | null
           nombre?: string
         }
@@ -464,6 +467,8 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           id: string
+          lider_referencia: string
+          mentor_id: string
           nombre: string
         }[]
       }

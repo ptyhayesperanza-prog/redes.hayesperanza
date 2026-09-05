@@ -13,7 +13,7 @@ export default async function UsuariosPendientesPage() {
 
   const [{ data: pendientes }, { data: redes }, { data: mentores }] = await Promise.all([
     supabase.rpc("listar_usuarios_pendientes"),
-    supabase.from("redes").select("id, nombre").order("nombre"),
+    supabase.from("redes").select("id, nombre, mentor_id, lider_referencia").order("nombre"),
     supabase.from("mentores").select("id, nombre, color").order("nombre"),
   ]);
 

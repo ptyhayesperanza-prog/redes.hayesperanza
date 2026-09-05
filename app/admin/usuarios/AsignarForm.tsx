@@ -5,7 +5,7 @@ import { CardPicker } from "@/components/CardPicker";
 import { colorMentorHex } from "@/lib/colorMentor";
 import { asignarPerfil } from "./actions";
 
-type Red = { id: string; nombre: string };
+type Red = { id: string; nombre: string; mentor_id: string | null; lider_referencia: string | null };
 type Mentor = { id: string; nombre: string; color: string | null };
 type Rol = "lider" | "mentor" | "pastor" | "admin";
 
@@ -37,6 +37,9 @@ export function AsignarForm({
 
   const [rol, setRol] = useState<Rol>(rolInicial);
   const [redId, setRedId] = useState<string | null>(redIdSugerida);
+  const [redMentorId, setRedMentorId] = useState<string | null>(
+    redes.find((r) => r.id === redIdSugerida)?.mentor_id ?? null,
+  );
   const [mentorId, setMentorId] = useState<string | null>(mentorIdSugerido);
   const [enviando, setEnviando] = useState(false);
 
@@ -85,12 +88,32 @@ export function AsignarForm({
       />
 
       {rol === "lider" && (
-        <CardPicker
-          items={redes.map((r) => ({ id: r.id, label: r.nombre }))}
-          selectedId={redId}
-          onSelect={setRedId}
-          numbered
-        />
+        <>
+          <CardPicker
+            items={mentores.map((m) => ({
+              id: m.id,
+              label: m.nombre,
+              sublabel: m.color ?? undefined,
+              colorHex: colorMentorHex(m.color),
+            }))}
+            selectedId={redMentorId}
+            onSelect={(id) => {
+              setRedMentorId(id);
+              setRedId(null);
+            }}
+            numbered
+          />
+          {redMentorId && (
+            <CardPicker
+              items={redes
+                .filter((r) => r.mentor_id === redMentorId)
+                .map((r) => ({ id: r.id, label: r.nombre, sublabel: r.lider_referencia ?? undefined }))}
+              selectedId={redId}
+              onSelect={setRedId}
+              numbered
+            />
+          )}
+        </>
       )}
 
       {rol === "mentor" && (
