@@ -2,19 +2,66 @@
 
 Aplicación web para reemplazar el informe semanal de Word que usan las redes (grupos pequeños) de la iglesia. Cada líder llena su reporte en un formulario en línea; el resultado se ve como un panel semanal ordenado, exportable a PDF/Excel.
 
-**Estado actual: scaffold funcionando.** El esquema de base de datos (con RLS) ya está aplicado en el proyecto real de Supabase, y el proyecto Next.js está conectado y corriendo. Faltan las pantallas reales (login, formulario de reporte, panel de consulta) — ver `CLAUDE.md` para el detalle técnico completo y el estado exacto.
+**Estado actual:** esquema de base de datos (con RLS), login/registro, y el formulario de reporte semanal ya están construidos y probados contra el Supabase real, con las 30 redes reales cargadas. Falta el panel de consulta (mentor/pastor/admin) y el despliegue a Vercel — ver `CLAUDE.md` para el detalle técnico completo y el estado exacto.
 
 El bosquejo visual (mockup interactivo, sin datos reales) vive fuera del repo, en un Artifact de Claude. Pídele el link a quien lo generó si necesitas verlo.
 
 ## Correr el proyecto localmente
 
+Pasos para que cualquiera pueda bajar este repo y dejarlo corriendo en su máquina.
+
+### 1. Requisitos previos
+
+- **Node.js 20 o superior** (recomendado 22). Sin esto, `npm install` puede fallar o el servidor no arrancar. Para revisar tu versión: `node --version`. Si no tenés Node, instalalo desde [nodejs.org](https://nodejs.org/) o con [nvm](https://github.com/nvm-sh/nvm).
+- **Git** instalado (`git --version`).
+- **Acceso al proyecto de Supabase real** — pedile a un admin del proyecto las dos credenciales del paso 3 (no son la contraseña de nadie, son claves públicas del proyecto).
+
+### 2. Clonar el repositorio
+
+```bash
+git clone https://github.com/ptyhayesperanza-prog/redes.hayesperanza.git
+cd redes.hayesperanza
+```
+
+### 3. Configurar las variables de entorno
+
+```bash
+cp .env.example .env.local
+```
+
+Abrí `.env.local` y completá las dos líneas con los valores reales que te pase el admin del proyecto de Supabase:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://<el-project-ref-real>.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_<la-clave-real>
+```
+
+`.env.local` nunca se sube a git (está en `.gitignore`) — cada persona que corre el proyecto tiene el suyo.
+
+### 4. Instalar dependencias
+
 ```bash
 npm install
-cp .env.example .env.local   # pedir las credenciales reales del proyecto Supabase
+```
+
+Si ves un error `EALLOWSCRIPTS`, tu `~/.npmrc` tiene restringida la ejecución de scripts de instalación; corré `npm install --ignore-scripts` en su lugar.
+
+### 5. Levantar el servidor de desarrollo
+
+```bash
 npm run dev
 ```
 
-Abrir [http://localhost:3000](http://localhost:3000).
+Cuando veas `✓ Ready`, abrí [http://localhost:3000](http://localhost:3000) en el navegador.
+
+### 6. Iniciar sesión
+
+- Si ya tenés una cuenta (líder, mentor, pastor o admin), entrá por `/login`.
+- Si no tenés cuenta, creala en `/registro` — queda pendiente de aprobación hasta que un admin te asigne rol y red desde `/admin/usuarios`.
+
+### Nota para Windows
+
+Si el repo vive en una ruta de red o de WSL (por ejemplo `\\wsl.localhost\...`), el watcher de archivos de Next.js puede fallar y reiniciar el servidor en loop. Corré el proyecto directamente dentro de una terminal de WSL (o en una carpeta local normal de Windows) en vez de acceder a la ruta de red desde `cmd`/PowerShell.
 
 ## Stack
 
