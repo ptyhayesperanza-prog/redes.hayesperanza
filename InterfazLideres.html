@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Líderes - Iglesia HE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #002b5e; 
+            --sidebar-bg: #9fa2d6;   
+            --bg-body: #f4f5f9;      
+            
+            --text-main: #334155;
+            --text-light: #64748b;
+            --white: #ffffff;
+            
+            --c-perla: #6B46C1;
+            --c-cesar: #0D9488;
+            --c-norma: #16261C;
+            --c-migdalia: #DC2626;
+            --c-lucy: #16A34A;
+            --c-eliel: #2563EB;
+            --c-marco: #EA580C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg); 
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logo-container img {
+            max-width: 400px;
+            height: auto;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1)); 
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 16px 30px;
+            color: #ffffff; 
+            opacity: 0.8;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.15);
+            opacity: 1;
+            padding-left: 35px; 
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.25);
+            opacity: 1;
+            border-left: 4px solid var(--primary-dark);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px 50px;
+            overflow-y: auto;
+        }
+
+        .page-section {
+            display: none;
+            animation: fadeInSection 0.4s ease;
+        }
+
+        .page-section.active-section {
+            display: block;
+        }
+
+        @keyframes fadeInSection {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-top {
+            margin-bottom: 40px;
+        }
+
+        .header-top h2 {
+            font-size: 28px;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        .header-top p {
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(159, 162, 214, 0.3);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(159, 162, 214, 0.2);
+        }
+
+        .kpi-title {
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-top: 10px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .kpi-card.highlight {
+            background-color: var(--sidebar-bg);
+            color: var(--primary-dark);
+            border: none;
+        }
+        
+        .kpi-card.highlight .kpi-title { color: var(--primary-dark); opacity: 0.8; }
+        .kpi-card.highlight .kpi-value { color: var(--primary-dark); }
+
+        .table-container {
+            background: transparent;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        th {
+            padding: 0 20px 10px 20px;
+            text-align: left;
+            font-size: 13px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:not(.mentor-row) {
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:not(.mentor-row):hover {
+            box-shadow: 0 5px 15px rgba(159, 162, 214, 0.15);
+            transform: scale(1.005);
+        }
+
+        td {
+            padding: 20px;
+            font-size: 15px;
+            vertical-align: middle;
+        }
+
+        tbody tr:not(.mentor-row) td:first-child { border-radius: 12px 0 0 12px; }
+        tbody tr:not(.mentor-row) td:last-child { border-radius: 0 12px 12px 0; }
+
+        .red-name {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 16px;
+        }
+
+        .red-leader {
+            color: var(--text-light);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .mentor-row td {
+            padding: 15px 20px;
+            color: white;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            border-radius: 8px;
+        }
+
+        .bg-perla { background-color: var(--c-perla); }
+        .bg-cesar { background-color: var(--c-cesar); }
+        .bg-norma { background-color: var(--c-norma); color: #ffffff; }
+        .bg-migdalia { background-color: var(--c-migdalia); }
+        .bg-lucy { background-color: var(--c-lucy); }
+        .bg-eliel { background-color: var(--c-eliel); }
+        .bg-marco { background-color: var(--c-marco); }
+
+        .btn-view {
+            background-color: var(--primary-dark);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-view:hover {
+            background-color: #001a3d;
+            transform: translateY(-2px);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 43, 94, 0.6); 
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 650px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            position: relative;
+            transform: translateY(0);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            color: var(--primary-dark);
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: var(--bg-body);
+            border: none;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--primary-dark);
+            transition: 0.2s;
+        }
+
+        .close-btn:hover {
+            background: var(--sidebar-bg);
+            color: white;
+        }
+
+        .modal-data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .data-item {
+            background: var(--bg-body);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(159, 162, 214, 0.3);
+        }
+
+        .data-label {
+            font-size: 13px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .data-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .placeholder-content {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            color: var(--text-light);
+            border: 1px dashed rgba(159, 162, 214, 0.5);
+            margin-top: 20px;
+        }
+    
+        .sidebar { flex: 0 0 280px; }
+        .logo-container img { width: 220px; max-width: 100%; display: block; }
+        .main-content { min-width: 0; }
+        .nav-link { width: 100%; text-align: left; border-top: 0; border-right: 0; border-bottom: 0; background: transparent; font-family: inherit; }
+        .profile { padding: 24px 30px; color: var(--primary-dark); border-top: 1px solid #ffffff55; font-size: 13px; }
+        .profile strong { display: block; margin: 6px 0; }
+        .eyebrow { color: #6b46c1; font-size: 12px; font-weight: 600; letter-spacing: 1px; margin-bottom: 10px; }
+        .scope { background: #eeedf9; color: var(--primary-dark); padding: 18px 22px; border-radius: 12px; margin-bottom: 28px; line-height: 1.6; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 18px; flex-wrap: wrap; }
+        .toolbar h3 { color: var(--primary-dark); }
+        input { padding: 12px 16px; border: 1px solid #cbd0e3; border-radius: 8px; font: inherit; width: 260px; max-width: 100%; }
+        .table-container { overflow-x: auto; }
+        table { min-width: 650px; }
+        .badge { display: inline-block; color: #246443; background: #e8f5ec; padding: 5px 10px; border-radius: 20px; font-size: 12px; }
+        .kpi-note { color: var(--text-light); font-size: 12px; margin-top: 6px; }
+        .empty { padding: 32px; text-align: center; color: var(--text-light); }
+        dialog.modal-content { border: 0; margin: auto; max-height: 90vh; overflow: auto; }
+        dialog::backdrop { background: #002b5e99; backdrop-filter: blur(4px); }
+        :focus-visible { outline: 3px solid #6b46c1; outline-offset: 3px; }
+        @media (max-width: 1000px) { .main-content { padding: 28px 24px; } .sidebar { flex-basis: 230px; } .kpi-grid { gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 650px) { body { display: block; } .sidebar { width: 100%; } .logo-container { padding: 12px; } .logo-container img { width: 170px; } .nav-menu { display: flex; overflow-x: auto; padding: 0; } .nav-link { white-space: nowrap; padding: 14px 18px; } .nav-link:hover { padding-left: 18px; } .profile { padding: 12px 20px; } .header-top h2 { font-size: 24px; } .main-content { padding: 24px 16px; } .kpi-card { padding: 18px; } .kpi-title { font-size: 11px; } .kpi-value { font-size: 28px; } .modal-content { padding: 24px; } .modal-data-grid { gap: 12px; } }
+
+    </style>
+<link rel="stylesheet" href="lideres.css">
+</head>
+<body>
+<nav class="sidebar" aria-label="Menú del líder">
+<div class="logo-container"><img src="imagenes/logo-hayesperanza-azul.png" alt="Hay Esperanza"></div>
+<ul class="nav-menu">
+<li><button class="nav-link active" data-target="resumen" aria-current="page">Vista General</button></li>
+<li><button class="nav-link" data-target="miembros">Miembros de mi Red</button></li>
+<li><button class="nav-link" data-target="nuevo-informe">Crear Informe</button></li>
+<li><button class="nav-link" data-target="historial">Mis Informes</button></li>
+</ul>
+<div class="profile">LÍDER<strong>Juan Camilo / Mita Diaz</strong>Red 002 · Mentoría de Lucy de Candanedo</div>
+</nav>
+<main class="main-content">
+<div class="scope"><strong>Mi red · Red 002</strong><br>Prototipo local: usa datos ficticios. Los registros se guardan solo en este navegador y no se envían a mentores o pastores.</div>
+<p id="mensaje" role="status" aria-live="polite" hidden></p>
+<section id="resumen" class="page-section active-section">
+<header class="header-top"><div class="eyebrow">MI RED</div><h2>Panel de Líderes</h2><p>Cuida de tus miembros y registra cada reunión de tu red.</p></header>
+<div class="kpi-grid" id="indicadores"></div>
+<div class="toolbar"><h3>Tu próxima tarea</h3></div><div class="kpi-card"><h3>Todo listo para acompañar a tu red</h3><p class="intro">Agrega a tus miembros y después marca quiénes asistieron a la reunión. El informe calculará los totales por ti.</p><div class="acciones"><button class="btn-view" data-go="miembros">Registrar miembros</button><button class="btn-view secondary" data-go="nuevo-informe">Crear informe</button></div></div>
+</section>
+<section id="miembros" class="page-section">
+<header class="header-top"><h2>Miembros de mi Red</h2><p>Información personal y estado de los miembros de la Red 002.</p></header>
+<div class="toolbar"><label for="buscar">Buscar miembro <input id="buscar" type="search" placeholder="Nombre o teléfono"></label><button class="btn-view" id="agregar">Agregar miembro</button></div>
+<div class="table-container"><table><thead><tr><th>Miembro</th><th>Contacto</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="lista-miembros"></tbody></table></div><p class="empty" id="miembros-vacio">Aún no tienes miembros registrados. Agrega el primero para comenzar.</p>
+</section>
+<section id="nuevo-informe" class="page-section">
+<header class="header-top"><h2>Crear Informe</h2><p>Registra la asistencia, las visitas y la ofrenda de tu reunión.</p></header>
+<form id="informe-form" class="kpi-card">
+<div class="form-grid"><label>Fecha de reunión *<input type="date" id="fecha" required></label><label>Lugar de reunión<input id="lugar" maxlength="160" placeholder="Ej. Casa del líder"></label></div>
+<div class="toolbar attendance-title"><h3>Asistencia de miembros</h3><button type="button" class="btn-view secondary" id="marcar-todos">Marcar todos</button></div>
+<p class="intro">Marca los miembros que asistieron. Las visitas se registran por separado.</p><div id="asistencia" class="attendance-list"></div>
+<div class="form-grid"><label>Nuevos visitantes *<input id="visitas" type="number" min="0" max="10000" step="1" value="0" required></label><label>Ofrenda (B/.) *<input id="ofrenda" type="number" min="0" max="1000000" step="0.01" value="0.00" required></label></div>
+<label>Comentarios de la reunión<textarea id="comentarios" rows="3" maxlength="2000" placeholder="Observaciones y seguimiento para tu mentoría"></textarea></label>
+<div class="report-summary" id="totales" aria-live="polite"></div><p class="intro">Se guardará una copia de los totales y los nombres de esta reunión. Los cambios posteriores en miembros no modificarán este informe.</p>
+<button class="btn-view" type="submit">Guardar informe</button>
+</form>
+</section>
+<section id="historial" class="page-section"><header class="header-top"><h2>Mis Informes</h2><p>Historial de reuniones de tu red guardadas en este navegador.</p></header><div class="table-container"><table><thead><tr><th>Fecha</th><th>Miembros</th><th>Asistieron</th><th>Visitas</th><th>Ofrenda</th><th>Acción</th></tr></thead><tbody id="lista-informes"></tbody></table></div><p class="empty" id="informes-vacio">Todavía no hay informes. Crea el primero después de tu reunión.</p></section>
+</main>
+<dialog class="modal-content" id="miembro-modal" aria-labelledby="miembro-titulo"><div class="modal-header"><h3 class="modal-title" id="miembro-titulo">Agregar miembro</h3><button class="close-btn" type="button" data-close="miembro-modal" aria-label="Cerrar">×</button></div>
+<form id="miembro-form"><div class="form-grid"><label>Nombre completo *<input id="nombre" required maxlength="100" autocomplete="name"></label><label>Teléfono<input id="telefono" type="tel" maxlength="30" autocomplete="tel"></label><label>Correo electrónico<input id="correo" type="email" maxlength="160" autocomplete="email"></label><label>Fecha de nacimiento<input id="nacimiento" type="date"></label></div><label>Dirección<input id="direccion" maxlength="250" autocomplete="street-address"></label><label>Estado<select id="estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select></label><div class="acciones"><button class="btn-view" type="submit">Guardar miembro</button><button class="btn-view secondary" type="button" data-close="miembro-modal">Cancelar</button></div></form></dialog>
+<dialog class="modal-content" id="informe-modal" aria-labelledby="detalle-titulo"><div class="modal-header"><h3 class="modal-title" id="detalle-titulo">Informe</h3><button class="close-btn" data-close="informe-modal" aria-label="Cerrar">×</button></div><div id="detalle"></div></dialog>
+<script src="lideres.js"></script>
+</body></html>

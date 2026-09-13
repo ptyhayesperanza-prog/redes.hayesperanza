@@ -1,0 +1,19 @@
+.form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+label { display: block; font-size: 14px; font-weight: 500; }
+form label { margin-bottom: 20px; }
+form input, select, textarea { display: block; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #cbd0e3; border-radius: 8px; font: inherit; color: var(--text-main); background: white; }
+.intro { color: var(--text-light); line-height: 1.7; margin: 12px 0 20px; font-size: 14px; }
+.acciones { display: flex; flex-wrap: wrap; gap: 12px; }
+.secondary { background: #e9eaf5; color: var(--primary-dark); }
+.secondary:hover { background: #d7d9ef; }
+.attendance-title { margin-top: 12px; }
+.attendance-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 18px 0 24px; }
+.attendance-list label { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--bg-body); border-radius: 10px; margin: 0; }
+.attendance-list input { width: 18px; height: 18px; margin: 0; accent-color: var(--primary-dark); }
+.report-summary { background: #eeedf9; border-radius: 12px; padding: 18px; line-height: 1.8; color: var(--primary-dark); }
+#mensaje { padding: 16px; border-radius: 10px; background: #e8f5ec; margin-bottom: 20px; }
+#mensaje.error { background: #fee2e2; color: #991b1b; }
+.badge.inactivo { background: #f1f1f4; color: #64748b; }
+#detalle p { margin: 12px 0; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+#detalle ul { padding-left: 22px; line-height: 1.8; }
+@media(max-width:650px) { .form-grid, .attendance-list { grid-template-columns: 1fr; } }
