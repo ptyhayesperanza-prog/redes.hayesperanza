@@ -398,6 +398,7 @@
 <div class="logo-container"><img src="imagenes/logo-hayesperanza-azul.png" alt="Hay Esperanza"></div>
 <ul class="nav-menu">
 <li><button class="nav-link active" data-target="resumen" aria-current="page">Vista General</button></li>
+<li><button class="nav-link" data-target="pampe">PAMPE</button></li>
 <li><button class="nav-link" data-target="miembros">Miembros de mi Red</button></li>
 <li><button class="nav-link" data-target="nuevo-informe">Crear Informe</button></li>
 <li><button class="nav-link" data-target="historial">Mis Informes</button></li>
@@ -412,6 +413,16 @@
 <div class="kpi-grid" id="indicadores"></div>
 <div class="toolbar"><h3>Tu próxima tarea</h3></div><div class="kpi-card"><h3>Todo listo para acompañar a tu red</h3><p class="intro">Agrega a tus miembros y después marca quiénes asistieron a la reunión. El informe calculará los totales por ti.</p><div class="acciones"><button class="btn-view" data-go="miembros">Registrar miembros</button><button class="btn-view secondary" data-go="nuevo-informe">Crear informe</button></div></div>
 </section>
+<section id="pampe" class="page-section">
+<header class="header-top"><div class="eyebrow">DEVOCIONAL CONGREGACIONAL</div><h2>PAMPE</h2><p>Selecciona el día y comparte la cita con el esquema de reflexión.</p></header>
+<div class="scope"><strong>PAMPE 19/2026 · Semana 11 · 14 al 18 de septiembre de 2026</strong><br>Los discípulos desarrollan personalmente cada apartado después de leer la cita.</div>
+<div id="pampe-dias" class="pampe-days" aria-label="Días del devocional"></div>
+<article class="pampe-card">
+<div class="pampe-card-header"><div><p id="pampe-fecha" class="eyebrow"></p><h3 id="pampe-cita"></h3><p id="pampe-tema" class="red-leader"></p></div><button id="copiar-pampe" class="btn-view" type="button">Copiar para enviar</button></div>
+<p class="intro">Lee la cita y usa el esquema como guía. Las respuestas no se incluyen: cada discípulo debe desarrollarlas personalmente.</p>
+<div id="pampe-guia" class="pampe-guide"></div>
+</article>
+</section>
 <section id="miembros" class="page-section">
 <header class="header-top"><h2>Miembros de mi Red</h2><p>Información personal y estado de los miembros de la Red 002.</p></header>
 <div class="toolbar"><label for="buscar">Buscar miembro <input id="buscar" type="search" placeholder="Nombre o teléfono"></label><button class="btn-view" id="agregar">Agregar miembro</button></div>
@@ -425,6 +436,7 @@
 <p class="intro">Marca los miembros que asistieron. Las visitas se registran por separado.</p><div id="asistencia" class="attendance-list"></div>
 <div class="form-grid"><label>Nuevos visitantes *<input id="visitas" type="number" min="0" max="10000" step="1" value="0" required></label><label>Ofrenda (B/.) *<input id="ofrenda" type="number" min="0" max="1000000" step="0.01" value="0.00" required></label></div>
 <label>Comentarios de la reunión<textarea id="comentarios" rows="3" maxlength="2000" placeholder="Observaciones y seguimiento para tu mentoría"></textarea></label>
+<div class="photo-upload"><label for="fotos">Fotos de la reunión <span class="red-leader">Opcional · máximo 3 fotos de 1 MB (JPG, PNG o WebP)</span></label><input id="fotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><div id="fotos-preview" class="photo-preview" aria-live="polite"></div></div>
 <div class="report-summary" id="totales" aria-live="polite"></div><p class="intro">Se guardará una copia de los totales y los nombres de esta reunión. Los cambios posteriores en miembros no modificarán este informe.</p>
 <button class="btn-view" type="submit">Guardar informe</button>
 </form>

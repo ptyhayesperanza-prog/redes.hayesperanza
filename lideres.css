@@ -16,4 +16,27 @@ form input, select, textarea { display: block; width: 100%; margin-top: 8px; pad
 .badge.inactivo { background: #f1f1f4; color: #64748b; }
 #detalle p { margin: 12px 0; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
 #detalle ul { padding-left: 22px; line-height: 1.8; }
-@media(max-width:650px) { .form-grid, .attendance-list { grid-template-columns: 1fr; } }
+.photo-upload { margin: 0 0 20px; }
+.photo-upload > label { margin-bottom: 8px; }
+.photo-upload input[type="file"] { border: 1px dashed #9fa2d6; background: #f8f8fd; }
+.photo-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 14px; }
+.photo-item { position: relative; border: 1px solid #d9dcef; border-radius: 10px; overflow: hidden; background: white; }
+.photo-item img { display: block; width: 100%; height: 110px; object-fit: cover; }
+.photo-item span { display: block; padding: 7px 34px 7px 8px; color: var(--text-light); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.photo-remove { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: #002b5ecc; color: white; cursor: pointer; font-size: 17px; }
+.report-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 12px; }
+.report-photos img { width: 100%; height: 125px; object-fit: cover; border-radius: 10px; border: 1px solid #d9dcef; }
+.pampe-days { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+.pampe-day { border: 1px solid #cbd0e3; border-radius: 8px; background: white; color: var(--primary-dark); cursor: pointer; font: inherit; font-weight: 600; padding: 10px 14px; }
+.pampe-day.active, .pampe-day:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: white; }
+.pampe-card { background: var(--white); border: 1px solid rgba(159,162,214,.35); border-radius: 16px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,.04); }
+.pampe-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
+.pampe-card-header h3 { color: var(--primary-dark); font-size: 24px; }
+.pampe-guide { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.pampe-item { padding: 18px; border-radius: 12px; background: var(--bg-body); border-left: 4px solid var(--c-perla); }
+.pampe-item:nth-child(2) { border-color: var(--c-cesar); }
+.pampe-item:nth-child(3) { border-color: var(--c-eliel); }
+.pampe-item:nth-child(4) { border-color: var(--c-lucy); }
+.pampe-item h4 { color: var(--primary-dark); font: 600 15px 'Poppins',sans-serif; margin-bottom: 8px; }
+.pampe-item p { color: var(--text-light); font-size: 14px; line-height: 1.55; }
+@media(max-width:650px) { .form-grid, .attendance-list, .pampe-guide { grid-template-columns: 1fr; } .pampe-card-header { flex-direction: column; } }

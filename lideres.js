@@ -10,8 +10,65 @@ const uid = () => crypto.randomUUID();
 let datos = { miembros: [], informes: [] };
 let editando = null;
 let almacenamientoDisponible = true;
+let fotosSeleccionadas = [];
+let urlsVistaPrevia = [];
+const MAX_FOTOS = 3;
+const MAX_BYTES_FOTO = 1024 * 1024;
+const pampeDias = [
+    { dia: 'Lunes', fecha: '14 de septiembre', cita: 'Juan 8:15–18' },
+    { dia: 'Martes', fecha: '15 de septiembre', cita: 'Juan 8:19–20' },
+    { dia: 'Miércoles', fecha: '16 de septiembre', cita: 'Juan 8:21–24' },
+    { dia: 'Jueves', fecha: '17 de septiembre', cita: 'Juan 8:25–30' },
+    { dia: 'Viernes', fecha: '18 de septiembre', cita: 'Juan 8:31–34' }
+];
+const preguntasPampe = ['Pecados que debo confesar', 'Actitudes que debo tomar', 'Mandamientos que debo seguir', 'Promesas que me da Dios'];
+let pampeActual = 0;
 function aviso(texto, error = false) { $('mensaje').textContent = texto; $('mensaje').className = error ? 'error' : ''; $('mensaje').hidden = false; }
 function nodo(tag, texto, clase) { const e = document.createElement(tag); if (texto !== undefined) e.textContent = texto; if (clase) e.className = clase; return e; }
+function limpiarFotos() {
+    urlsVistaPrevia.forEach(url => URL.revokeObjectURL(url));
+    urlsVistaPrevia = [];
+    fotosSeleccionadas = [];
+    $('fotos').value = '';
+    $('fotos-preview').replaceChildren();
+}
+function mostrarFotos() {
+    urlsVistaPrevia.forEach(url => URL.revokeObjectURL(url));
+    urlsVistaPrevia = [];
+    $('fotos-preview').replaceChildren();
+    fotosSeleccionadas.forEach((foto, indice) => {
+        const item = nodo('div', undefined, 'photo-item');
+        const imagen = document.createElement('img');
+        const url = URL.createObjectURL(foto);
+        urlsVistaPrevia.push(url);
+        imagen.src = url;
+        imagen.alt = 'Vista previa de ' + foto.name;
+        const quitar = nodo('button', '×', 'photo-remove');
+        quitar.type = 'button';
+        quitar.setAttribute('aria-label', 'Quitar ' + foto.name);
+        quitar.addEventListener('click', () => { fotosSeleccionadas.splice(indice, 1); mostrarFotos(); });
+        item.append(imagen, quitar, nodo('span', foto.name));
+        $('fotos-preview').append(item);
+    });
+}
+function agregarFotos(archivos) {
+    for (const foto of archivos) {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(foto.type)) { aviso('Solo puedes agregar fotos JPG, PNG o WebP.', true); continue; }
+        if (foto.size > MAX_BYTES_FOTO) { aviso('Cada foto debe pesar como máximo 1 MB.', true); continue; }
+        if (fotosSeleccionadas.length >= MAX_FOTOS) { aviso('Puedes agregar un máximo de 3 fotos por informe.', true); break; }
+        fotosSeleccionadas.push(foto);
+    }
+    $('fotos').value = '';
+    mostrarFotos();
+}
+function leerFoto(foto) {
+    return new Promise((resolve, reject) => {
+        const lector = new FileReader();
+        lector.onload = () => resolve({ nombre: foto.name, tipo: foto.type, data: lector.result });
+        lector.onerror = () => reject(new Error('No se pudo leer una de las fotos.'));
+        lector.readAsDataURL(foto);
+    });
+}
 function cargar() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -19,7 +76,7 @@ function cargar() {
             const d = JSON.parse(raw);
             if (!d || !Array.isArray(d.miembros) || !Array.isArray(d.informes) ||
                 !d.miembros.every(m => m && m.redId === RED && typeof m.id === 'string' && typeof m.nombre === 'string' && ['activo','inactivo'].includes(m.estado)) ||
-                !d.informes.every(i => i && i.redId === RED && typeof i.fecha === 'string' && Array.isArray(i.miembros) && Array.isArray(i.asistentes) && Number.isFinite(i.visitas) && Number.isFinite(i.ofrenda))) throw new Error('Datos inválidos');
+                !d.informes.every(i => i && i.redId === RED && typeof i.fecha === 'string' && Array.isArray(i.miembros) && Array.isArray(i.asistentes) && Number.isFinite(i.visitas) && Number.isFinite(i.ofrenda) && (!i.fotos || (Array.isArray(i.fotos) && i.fotos.every(f => f && typeof f.nombre === 'string' && typeof f.data === 'string'))))) throw new Error('Datos inválidos');
             datos = d;
         }
     } catch (_) { almacenamientoDisponible = false; aviso('No se pudieron leer los datos locales. No guardaremos cambios para evitar sobrescribir registros. Revisa el almacenamiento del navegador.', true); }
@@ -33,6 +90,44 @@ const activos = () => datos.miembros.filter(m => m.estado === 'activo');
 function ir(id) {
     document.querySelectorAll('.page-section').forEach(s => s.classList.toggle('active-section', s.id === id));
     document.querySelectorAll('.nav-link').forEach(b => { const actual = b.dataset.target === id; b.classList.toggle('active', actual); if (actual) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+}
+function textoPampe(dia) {
+    const guia = preguntasPampe.map(pregunta => pregunta + ':\n').join('\n');
+    return 'PAMPE · ' + dia.dia + ' ' + dia.fecha + '\nCita bíblica: ' + dia.cita + '\n\n' + guia;
+}
+function mostrarPampe() {
+    const dia = pampeDias[pampeActual];
+    $('pampe-dias').replaceChildren();
+    pampeDias.forEach((opcion, indice) => {
+        const boton = nodo('button', opcion.dia, 'pampe-day' + (indice === pampeActual ? ' active' : ''));
+        boton.type = 'button';
+        boton.setAttribute('aria-pressed', indice === pampeActual ? 'true' : 'false');
+        boton.addEventListener('click', () => { pampeActual = indice; mostrarPampe(); });
+        $('pampe-dias').append(boton);
+    });
+    $('pampe-fecha').textContent = dia.dia.toUpperCase() + ' · ' + dia.fecha;
+    $('pampe-cita').textContent = dia.cita;
+    $('pampe-tema').textContent = 'Desarrolla personalmente esta guía después de leer la cita.';
+    $('pampe-guia').replaceChildren();
+    preguntasPampe.forEach((pregunta, indice) => {
+        const item = nodo('article', undefined, 'pampe-item');
+        item.append(nodo('h4', pregunta), nodo('p', 'Escribe tu reflexión personal a partir de la lectura.'));
+        $('pampe-guia').append(item);
+    });
+}
+async function copiarPampe() {
+    const texto = textoPampe(pampeDias[pampeActual]);
+    try {
+        await navigator.clipboard.writeText(texto);
+    } catch (_) {
+        const area = document.createElement('textarea');
+        area.value = texto;
+        document.body.append(area);
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+    }
+    aviso('PAMPE copiado. Ya puedes enviarlo a tus discípulos.');
 }
 function resumen() {
     const ultimo = [...datos.informes].sort((a,b) => b.fecha.localeCompare(a.fecha))[0];
@@ -85,7 +180,20 @@ function detalle(id) {
     $('detalle-titulo').textContent = 'Red 002 · ' + i.fecha; $('detalle').replaceChildren();
     [`Lugar: ${i.lugar || 'No indicado'}`, `Miembros: ${i.miembros.length} · Asistieron: ${i.asistentes.length} · Faltaron: ${i.miembros.length-i.asistentes.length}`, `Visitas: ${i.visitas} · Asistencia total: ${i.asistentes.length+i.visitas}`, `Ofrenda: ${dinero(i.ofrenda)}`].forEach(t => $('detalle').append(nodo('p',t)));
     $('detalle').append(nodo('h4','Asistencia de miembros'));
-    const ul = nodo('ul'); i.miembros.forEach(m => ul.append(nodo('li',`${m.nombre} — ${i.asistentes.includes(m.id) ? 'Asistió' : 'Ausente'}`))); $('detalle').append(ul,nodo('p','Comentarios: ' + (i.comentarios || 'Sin comentarios'))); $('informe-modal').showModal();
+    const ul = nodo('ul'); i.miembros.forEach(m => ul.append(nodo('li',`${m.nombre} — ${i.asistentes.includes(m.id) ? 'Asistió' : 'Ausente'}`))); $('detalle').append(ul,nodo('p','Comentarios: ' + (i.comentarios || 'Sin comentarios')));
+    const fotos = i.fotos || [];
+    if (fotos.length) {
+        $('detalle').append(nodo('h4','Fotos de la reunión'));
+        const galeria = nodo('div', undefined, 'report-photos');
+        fotos.forEach((foto, indice) => {
+            const imagen = document.createElement('img');
+            imagen.src = foto.data;
+            imagen.alt = 'Foto ' + (indice + 1) + ' de la reunión del ' + i.fecha;
+            galeria.append(imagen);
+        });
+        $('detalle').append(galeria);
+    }
+    $('informe-modal').showModal();
 }
 $('miembro-form').addEventListener('submit',e => {
     e.preventDefault(); const nombre = $('nombre').value.trim();
@@ -97,19 +205,24 @@ $('miembro-form').addEventListener('submit',e => {
     $('miembro-modal').close(); listaMiembros(); asistencia(); resumen(); aviso('Miembro guardado en este navegador.');
 });
 $('nombre').addEventListener('input',() => $('nombre').setCustomValidity(''));
-$('informe-form').addEventListener('submit',e => {
+$('informe-form').addEventListener('submit',async e => {
     e.preventDefault(); const fecha = $('fecha').value, visitas = Number($('visitas').value), ofrenda = Number($('ofrenda').value);
     if (!fecha || fecha > hoy() || !Number.isInteger(visitas) || visitas < 0 || !Number.isFinite(ofrenda) || ofrenda < 0) { aviso('Revisa la fecha, las visitas y la ofrenda.',true); return; }
     if (datos.informes.some(i => i.fecha === fecha)) { aviso('Ya hay un informe para esta fecha. Puedes consultarlo en Mis Informes.',true); return; }
-    const informe = { id: uid(), redId: RED, fecha, lugar: $('lugar').value.trim(), comentarios: $('comentarios').value.trim(), visitas, ofrenda: Math.round(ofrenda*100)/100, miembros: activos().map(m => ({id:m.id,nombre:m.nombre})), asistentes: seleccionados() };
+    let fotos;
+    try { fotos = await Promise.all(fotosSeleccionadas.map(leerFoto)); }
+    catch (_) { aviso('No se pudieron preparar las fotos. Inténtalo de nuevo.', true); return; }
+    const informe = { id: uid(), redId: RED, fecha, lugar: $('lugar').value.trim(), comentarios: $('comentarios').value.trim(), visitas, ofrenda: Math.round(ofrenda*100)/100, miembros: activos().map(m => ({id:m.id,nombre:m.nombre})), asistentes: seleccionados(), fotos };
     if (!guardar({...datos,informes:[...datos.informes,informe]})) return;
-    $('informe-form').reset(); $('fecha').value = hoy(); asistencia(); historial(); resumen(); ir('historial'); aviso('Informe guardado en este navegador.');
+    $('informe-form').reset(); limpiarFotos(); $('fecha').value = hoy(); asistencia(); historial(); resumen(); ir('historial'); aviso('Informe guardado en este navegador.');
 });
 document.querySelectorAll('[data-target]').forEach(b => b.addEventListener('click',() => ir(b.dataset.target)));
 document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click',() => ir(b.dataset.go)));
 document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click',() => $(b.dataset.close).close()));
 $('agregar').addEventListener('click',() => abrirMiembro()); $('buscar').addEventListener('input',listaMiembros);
 $('visitas').addEventListener('input',totales);
+$('fotos').addEventListener('change', e => agregarFotos(e.target.files));
+$('copiar-pampe').addEventListener('click', copiarPampe);
 $('marcar-todos').addEventListener('click',() => { const checks = [...$('asistencia').querySelectorAll('input')]; const todos = checks.length > 0 && checks.every(c => c.checked); checks.forEach(c => c.checked = !todos); totales(); });
 $('fecha').value = hoy(); $('fecha').max = hoy(); $('nacimiento').max = hoy();
-cargar(); resumen(); listaMiembros(); asistencia(); historial();
+cargar(); resumen(); mostrarPampe(); listaMiembros(); asistencia(); historial();

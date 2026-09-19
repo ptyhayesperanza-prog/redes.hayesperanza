@@ -357,6 +357,21 @@
             color: var(--primary-dark);
             font-family: 'Poppins', sans-serif;
         }
+        .data-item.wide { grid-column: 1 / -1; }
+        .data-item.wide .data-value { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500; line-height: 1.5; }
+        .detail-section { border-top: 1px solid #e4e7f0; margin-top: 28px; padding-top: 24px; }
+        .detail-section h4 { color: var(--primary-dark); font-size: 16px; margin-bottom: 14px; }
+        .member-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .member-list { background: var(--bg-body); border-radius: 12px; padding: 16px; }
+        .member-list-title { display: flex; align-items: center; justify-content: space-between; color: var(--primary-dark); font-weight: 600; font-size: 14px; margin-bottom: 10px; }
+        .member-count { color: var(--text-light); font-size: 12px; font-weight: 500; }
+        .member-list ul { list-style: none; }
+        .member-list li { padding: 9px 0; border-top: 1px solid #dfe2eb; font-size: 14px; }
+        .member-list li:first-child { border-top: 0; }
+        .visitor-list { display: grid; gap: 12px; }
+        .visitor-card { background: #eef8f5; border-left: 4px solid var(--c-cesar); border-radius: 10px; padding: 15px; }
+        .visitor-card strong { color: var(--primary-dark); }
+        .visitor-card p { color: var(--text-light); font-size: 13px; line-height: 1.5; margin-top: 5px; }
 
         .placeholder-content {
             background: var(--white);
@@ -384,11 +399,31 @@
         .badge { display: inline-block; color: #246443; background: #e8f5ec; padding: 5px 10px; border-radius: 20px; font-size: 12px; }
         .kpi-note { color: var(--text-light); font-size: 12px; margin-top: 6px; }
         .empty { padding: 32px; text-align: center; color: var(--text-light); }
+        .report-summary { background: var(--white); border: 1px solid rgba(159, 162, 214, 0.3); border-radius: 16px; padding: 24px; margin-bottom: 28px; }
+        .report-summary-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+        .report-summary-header h3 { color: var(--primary-dark); font-size: 18px; }
+        .report-period { color: var(--text-light); font-size: 13px; margin-top: 5px; }
+        .attendance { min-width: 140px; }
+        .attendance-label { display: flex; justify-content: space-between; color: var(--text-light); font-size: 13px; margin-bottom: 8px; }
+        .progress { height: 8px; border-radius: 999px; background: #e9eaf4; overflow: hidden; }
+        .progress > span { display: block; height: 100%; border-radius: inherit; background: var(--c-cesar); }
+        .report-table td { padding-top: 16px; padding-bottom: 16px; }
+        .report-table .progress { min-width: 115px; }
+        .report-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .report-card { appearance: none; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; background: var(--white); border: 1px solid rgba(159, 162, 214, 0.35); border-radius: 16px; padding: 22px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+        .report-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -8px rgba(0, 43, 94, .2); border-color: var(--sidebar-bg); }
+        .report-card-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .report-card-metric { background: var(--bg-body); border-radius: 10px; padding: 12px; }
+        .report-card-metric span { display: block; color: var(--text-light); font-size: 11px; text-transform: uppercase; font-weight: 600; }
+        .report-card-metric strong { display: block; margin-top: 5px; color: var(--primary-dark); font-family: 'Poppins', sans-serif; font-size: 20px; }
+        .report-card-action { color: var(--c-perla); font-size: 13px; font-weight: 600; }
+        .btn-red-detail { appearance: none; border: 0; padding: 0; background: transparent; color: var(--primary-dark); cursor: pointer; font: inherit; text-align: left; }
+        .btn-red-detail:hover { color: var(--c-perla); text-decoration: underline; }
         dialog.modal-content { border: 0; margin: auto; max-height: 90vh; overflow: auto; }
         dialog::backdrop { background: #002b5e99; backdrop-filter: blur(4px); }
         :focus-visible { outline: 3px solid #6b46c1; outline-offset: 3px; }
         @media (max-width: 1000px) { .main-content { padding: 28px 24px; } .sidebar { flex-basis: 230px; } .kpi-grid { gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (max-width: 650px) { body { display: block; } .sidebar { width: 100%; } .logo-container { padding: 12px; } .logo-container img { width: 170px; } .nav-menu { display: flex; overflow-x: auto; padding: 0; } .nav-link { white-space: nowrap; padding: 14px 18px; } .nav-link:hover { padding-left: 18px; } .profile { padding: 12px 20px; } .header-top h2 { font-size: 24px; } .main-content { padding: 24px 16px; } .kpi-card { padding: 18px; } .kpi-title { font-size: 11px; } .kpi-value { font-size: 28px; } .modal-content { padding: 24px; } .modal-data-grid { gap: 12px; } }
+        @media (max-width: 650px) { body { display: block; } .sidebar { width: 100%; } .logo-container { padding: 12px; } .logo-container img { width: 170px; } .nav-menu { display: flex; overflow-x: auto; padding: 0; } .nav-link { white-space: nowrap; padding: 14px 18px; } .nav-link:hover { padding-left: 18px; } .profile { padding: 12px 20px; } .header-top h2 { font-size: 24px; } .main-content { padding: 24px 16px; } .kpi-card { padding: 18px; } .kpi-title { font-size: 11px; } .kpi-value { font-size: 28px; } .modal-content { padding: 24px; } .modal-data-grid, .member-lists { grid-template-columns: 1fr; gap: 12px; } }
 
     </style>
 </head>
@@ -397,6 +432,7 @@
         <div class="logo-container"><img src="imagenes/logo-hayesperanza-azul.png" alt="Hay Esperanza"></div>
         <ul class="nav-menu">
             <li><button class="nav-link active" data-target="vista-general" aria-current="page">Vista General</button></li>
+            <li><button class="nav-link" data-target="informe-consolidado">Informe General de Mentoría</button></li>
             <li><button class="nav-link" data-target="reportes-redes">Reportes de mis Redes</button></li>
             <li><button class="nav-link" data-target="reuniones-eventos">Reuniones y Eventos</button></li>
             <li><button class="nav-link" data-target="comentarios-lideres">Comentarios de Líderes</button></li>
@@ -413,7 +449,19 @@
             <div class="table-container"><table><thead><tr><th scope="col">Red / Líder</th><th scope="col">Miembros</th><th scope="col">Asistencia</th><th scope="col">Visitas</th><th scope="col">Ofrenda</th><th scope="col">Acción</th></tr></thead><tbody id="tabla-redes"></tbody></table></div>
             <p id="sin-resultados" class="empty" hidden>No hay redes que coincidan con tu búsqueda.</p>
         </section>
-        <section id="reportes-redes" class="page-section"><header class="header-top"><h2>Reportes de mis Redes</h2><p>Consulta el informe de cada red de tu mentoría.</p></header><div class="table-container"><table><thead><tr><th>Red / Líder</th><th>Informe</th><th>Acción</th></tr></thead><tbody id="tabla-reportes"></tbody></table></div></section>
+        <section id="informe-consolidado" class="page-section">
+            <header class="header-top"><div class="eyebrow">INFORME DE MENTORÍA</div><h2>Informe general de mentoría</h2><p>Resumen de todas las redes bajo tu administración.</p></header>
+            <div class="scope"><strong>Mentoría de Lucy de Candanedo</strong><br>Los datos corresponden al último reporte registrado por cada red.</div>
+            <div class="kpi-grid" id="indicadores-informe"></div>
+            <div class="report-summary">
+                <div class="report-summary-header">
+                    <div><h3>Estado general de la mentoría</h3><p class="report-period">Periodo actual &middot; Datos de demostración</p></div>
+                    <div class="attendance"><div class="attendance-label"><span>Asistencia general</span><strong id="porcentaje-general">0%</strong></div><div class="progress"><span id="progreso-general"></span></div></div>
+                </div>
+                <div class="table-container"><table class="report-table"><thead><tr><th>Red / Líder</th><th>Miembros</th><th>Asistencia</th><th>Participación</th><th>Visitas</th><th>Celebración</th><th>Ofrenda</th></tr></thead><tbody id="tabla-informe"></tbody></table></div>
+            </div>
+        </section>
+        <section id="reportes-redes" class="page-section"><header class="header-top"><h2>Reportes de mis Redes</h2><p>Selecciona una red para consultar su informe detallado.</p></header><div id="tarjetas-reportes" class="report-card-grid"></div></section>
         <section id="reuniones-eventos" class="page-section"><header class="header-top"><h2>Reuniones y Eventos</h2><p>Actividades de las redes de tu mentoría.</p></header><div class="placeholder-content"><h3>No hay reuniones registradas</h3><p>Las próximas actividades de tus redes aparecerán aquí.</p></div></section>
         <section id="comentarios-lideres" class="page-section"><header class="header-top"><h2>Comentarios de Líderes</h2><p>Observaciones de los líderes de tus redes asignadas.</p></header><div class="placeholder-content"><h3>No hay comentarios registrados</h3><p>Las notas de tus líderes aparecerán aquí.</p></div></section>
         <section id="invitaciones-visitas" class="page-section"><header class="header-top"><h2>Invitaciones y Visitas</h2><p>Resumen de nuevos asistentes en tus redes.</p></header><div class="kpi-grid" id="visitas-redes"></div></section>
@@ -421,6 +469,7 @@
     <dialog class="modal-content" id="detallesModal" aria-labelledby="modalTitulo">
         <div class="modal-header"><div><h3 class="modal-title" id="modalTitulo">Red</h3><p id="modalLider" class="red-leader"></p></div><button class="close-btn" id="cerrar-modal" aria-label="Cerrar detalles" autofocus>×</button></div>
         <div class="modal-data-grid" id="datos-modal"></div>
+        <div id="detalle-asistencia"></div>
     </dialog>
     <script>
         // DEMOSTRACIÓN: contiene únicamente los ejemplos de esta mentoría.
@@ -429,8 +478,8 @@
         // El filtrado del navegador no constituye una barrera de seguridad.
         const mentoria = { id: 'lucy', nombre: 'Lucy de Candanedo' };
         const redes = [
-            { id: '002', mentoriaId: 'lucy', lider: 'Juan Camilo / Mita Diaz', miembros: 13, asistencia: 6, visitas: 0, celebracion: 8, ofrenda: 0 },
-            { id: '009', mentoriaId: 'lucy', lider: 'Sana Palma', miembros: 8, asistencia: 8, visitas: 1, celebracion: 12, ofrenda: 0 }
+            { id: '002', mentoriaId: 'lucy', lider: 'Juan Camilo / Mita Diaz', miembros: 13, asistencia: 6, visitas: 0, celebracion: 8, ofrenda: 0, fechaReporte: '14 de septiembre de 2026', diaReunion: 'Miércoles', horaReunion: '7:00 p. m.', discipulados: 4, seguimiento: 'Se dio seguimiento a 2 miembros ausentes.', comentario: 'La red necesita apoyo para invitar nuevos visitantes.', miembrosDetalle: [{ nombre: 'Ana Morales', asistio: true }, { nombre: 'Carlos Díaz', asistio: true }, { nombre: 'Elena Rodríguez', asistio: true }, { nombre: 'Gabriel Pérez', asistio: true }, { nombre: 'Laura Castillo', asistio: true }, { nombre: 'Miguel Herrera', asistio: true }, { nombre: 'Paola Vega', asistio: false }, { nombre: 'Ricardo Núñez', asistio: false }, { nombre: 'Sofía Ramos', asistio: false }, { nombre: 'Tomás Moreno', asistio: false }, { nombre: 'Valeria Ortiz', asistio: false }, { nombre: 'Víctor Salas', asistio: false }, { nombre: 'Yadira Cruz', asistio: false }], visitantesDetalle: [] },
+            { id: '009', mentoriaId: 'lucy', lider: 'Sana Palma', miembros: 8, asistencia: 8, visitas: 1, celebracion: 12, ofrenda: 0, fechaReporte: '14 de septiembre de 2026', diaReunion: 'Jueves', horaReunion: '7:30 p. m.', discipulados: 3, seguimiento: 'Todos los miembros asistieron a la reunión.', comentario: 'Una visita nueva desea recibir seguimiento esta semana.', miembrosDetalle: [{ nombre: 'Adriana López', asistio: true }, { nombre: 'Bruno Gómez', asistio: true }, { nombre: 'Claudia Ruiz', asistio: true }, { nombre: 'Daniel Soto', asistio: true }, { nombre: 'Erika Molina', asistio: true }, { nombre: 'Fernando Gil', asistio: true }, { nombre: 'Gloria Silva', asistio: true }, { nombre: 'Héctor Torres', asistio: true }], visitantesDetalle: [{ nombre: 'Isabel Martínez', telefono: '6000-0000', invitadoPor: 'Claudia Ruiz', seguimiento: 'Llamar esta semana para agradecer su visita.' }] }
         ];
         const misRedes = redes.filter(red => red.mentoriaId === mentoria.id);
         const moneda = valor => 'B/. ' + valor.toFixed(2);
@@ -452,9 +501,29 @@
             tarjeta('Nuevos visitantes', total('visitas'), 'En tus redes', true),
             tarjeta('Total miembros', total('miembros'), 'En tus redes asignadas')
         );
+        const totalMiembros = total('miembros');
+        const porcentaje = totalMiembros ? Math.round((total('asistencia') / totalMiembros) * 100) : 0;
+        document.getElementById('indicadores-informe').append(
+            tarjeta('Redes reportadas', misRedes.length + ' / ' + misRedes.length, 'Todas las redes asignadas'),
+            tarjeta('Miembros activos', totalMiembros, 'Total de la mentoría'),
+            tarjeta('Asistencia total', total('asistencia'), porcentaje + '% de participación'),
+            tarjeta('Nuevos visitantes', total('visitas'), 'En el periodo actual', true)
+        );
+        document.getElementById('porcentaje-general').textContent = porcentaje + '%';
+        document.getElementById('progreso-general').style.width = porcentaje + '%';
         function identidad(red) {
             const celda = elemento('td');
             celda.append(elemento('div', 'red-name', 'Red ' + red.id), elemento('div', 'red-leader', red.lider));
+            return celda;
+        }
+        function identidadDetalle(red) {
+            const celda = elemento('td');
+            const boton = elemento('button', 'btn-red-detail');
+            boton.type = 'button';
+            boton.setAttribute('aria-label', 'Abrir informe detallado de Red ' + red.id);
+            boton.append(elemento('div', 'red-name', 'Red ' + red.id), elemento('div', 'red-leader', red.lider));
+            boton.addEventListener('click', () => abrirModal(red.id));
+            celda.append(boton);
             return celda;
         }
         function accion(red) {
@@ -481,12 +550,37 @@
         mostrarRedes();
         document.getElementById('buscar').addEventListener('input', evento => mostrarRedes(evento.target.value));
         misRedes.forEach(red => {
-            const fila = elemento('tr');
-            const estado = elemento('td');
-            estado.append(elemento('span', 'badge', 'Datos de ejemplo'));
-            fila.append(identidad(red), estado, accion(red));
-            document.getElementById('tabla-reportes').append(fila);
+            const tarjetaReporte = elemento('button', 'report-card');
+            tarjetaReporte.type = 'button';
+            tarjetaReporte.setAttribute('aria-label', 'Ver informe detallado de Red ' + red.id);
+            tarjetaReporte.append(
+                elemento('div', 'red-name', 'Red ' + red.id),
+                elemento('div', 'red-leader', red.lider)
+            );
+            const metricas = elemento('div', 'report-card-metrics');
+            [['Miembros', red.miembros], ['Asistencia', red.asistencia], ['Visitas', red.visitas]].forEach(([titulo, valor]) => {
+                const metrica = elemento('div', 'report-card-metric');
+                metrica.append(elemento('span', '', titulo), elemento('strong', '', valor));
+                metricas.append(metrica);
+            });
+            tarjetaReporte.append(metricas, elemento('div', 'report-card-action', 'Ver informe completo →'));
+            tarjetaReporte.addEventListener('click', () => abrirModal(red.id));
+            document.getElementById('tarjetas-reportes').append(tarjetaReporte);
             document.getElementById('visitas-redes').append(tarjeta('Red ' + red.id, red.visitas, 'Nuevos visitantes · ' + red.lider));
+            const participacion = red.miembros ? Math.round((red.asistencia / red.miembros) * 100) : 0;
+            const informeFila = elemento('tr');
+            const participacionCelda = elemento('td');
+            const etiquetaParticipacion = elemento('div', 'attendance-label');
+            etiquetaParticipacion.append(elemento('span', '', participacion + '%'));
+            const barraParticipacion = elemento('div', 'progress');
+            const avanceParticipacion = elemento('span');
+            avanceParticipacion.style.width = participacion + '%';
+            barraParticipacion.append(avanceParticipacion);
+            participacionCelda.append(etiquetaParticipacion, barraParticipacion);
+            informeFila.append(identidadDetalle(red));
+            [red.miembros, red.asistencia].forEach(valor => informeFila.append(elemento('td', '', valor)));
+            informeFila.append(participacionCelda, elemento('td', '', red.visitas), elemento('td', '', red.celebracion), elemento('td', '', moneda(red.ofrenda)));
+            document.getElementById('tabla-informe').append(informeFila);
         });
         const modal = document.getElementById('detallesModal');
         function abrirModal(id) {
@@ -496,11 +590,48 @@
             document.getElementById('modalLider').textContent = 'Líder: ' + red.lider;
             const datos = document.getElementById('datos-modal');
             datos.replaceChildren();
-            [['Total miembros', red.miembros], ['Asistieron', red.asistencia], ['Faltaron', red.miembros - red.asistencia], ['Visitas nuevas', red.visitas], ['Celebración', red.celebracion], ['Ofrenda', moneda(red.ofrenda)]].forEach(([titulo, valor]) => {
+            const participacion = red.miembros ? Math.round((red.asistencia / red.miembros) * 100) : 0;
+            [['Total miembros', red.miembros], ['Asistieron', red.asistencia], ['Faltaron', red.miembros - red.asistencia], ['Participación', participacion + '%'], ['Visitas nuevas', red.visitas], ['Celebración', red.celebracion], ['Discipulados', red.discipulados], ['Ofrenda', moneda(red.ofrenda)], ['Último reporte', red.fechaReporte], ['Reunión', red.diaReunion + ' · ' + red.horaReunion], ['Seguimiento', red.seguimiento], ['Comentario del líder', red.comentario]].forEach(([titulo, valor]) => {
                 const item = elemento('div', 'data-item');
+                if (titulo === 'Seguimiento' || titulo === 'Comentario del líder') item.classList.add('wide');
                 item.append(elemento('div', 'data-label', titulo), elemento('div', 'data-value', valor));
                 datos.append(item);
             });
+            const detalleAsistencia = document.getElementById('detalle-asistencia');
+            detalleAsistencia.replaceChildren();
+            const asistentes = red.miembrosDetalle.filter(miembro => miembro.asistio);
+            const ausentes = red.miembrosDetalle.filter(miembro => !miembro.asistio);
+            const seccionMiembros = elemento('section', 'detail-section');
+            seccionMiembros.append(elemento('h4', '', 'Asistencia por miembro'));
+            const listas = elemento('div', 'member-lists');
+            [['Asistieron', asistentes], ['No asistieron', ausentes]].forEach(([titulo, miembros]) => {
+                const lista = elemento('div', 'member-list');
+                const encabezado = elemento('div', 'member-list-title');
+                encabezado.append(elemento('span', '', titulo), elemento('span', 'member-count', miembros.length + ' miembro' + (miembros.length === 1 ? '' : 's')));
+                const nombres = elemento('ul');
+                miembros.forEach(miembro => nombres.append(elemento('li', '', miembro.nombre)));
+                lista.append(encabezado, nombres);
+                listas.append(lista);
+            });
+            seccionMiembros.append(listas);
+            const seccionVisitas = elemento('section', 'detail-section');
+            seccionVisitas.append(elemento('h4', '', 'Visitantes nuevos'));
+            const listaVisitas = elemento('div', 'visitor-list');
+            if (red.visitantesDetalle.length === 0) {
+                listaVisitas.append(elemento('p', 'red-leader', 'No se registraron visitantes nuevos en este reporte.'));
+            } else {
+                red.visitantesDetalle.forEach(visitante => {
+                    const tarjetaVisitante = elemento('article', 'visitor-card');
+                    tarjetaVisitante.append(
+                        elemento('strong', '', visitante.nombre),
+                        elemento('p', '', 'Contacto: ' + visitante.telefono + ' · Invitado por: ' + visitante.invitadoPor),
+                        elemento('p', '', 'Seguimiento: ' + visitante.seguimiento)
+                    );
+                    listaVisitas.append(tarjetaVisitante);
+                });
+            }
+            seccionVisitas.append(listaVisitas);
+            detalleAsistencia.append(seccionMiembros, seccionVisitas);
             modal.showModal();
         }
         document.getElementById('cerrar-modal').addEventListener('click', () => modal.close());
