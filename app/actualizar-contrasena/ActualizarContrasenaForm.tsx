@@ -16,14 +16,39 @@ export function ActualizarContrasenaForm() {
     const supabase = createClient();
     const url = new URL(window.location.href);
     const code = url.searchParams.get("code");
+    // El enlace del correo llega en uno de dos formatos:
+    // - ?code=... (PKCE): cuando se pidió desde /recuperar. Solo funciona en
+    //   el mismo navegador donde se pidió (ahí quedó guardado el verificador).
+    // - #access_token=...&refresh_token=... (implícito): cuando el correo se
+    //   manda desde el dashboard de Supabase o por API. Funciona en cualquier
+    //   navegador, pero el cliente PKCE no lo lee solo: hay que pasarlo a mano.
+    const hash = new URLSearchParams(url.hash.slice(1));
+    const accessToken = hash.get("access_token");
+    const refreshToken = hash.get("refresh_token");
+    const errorEnlace = hash.get("error_description") ?? url.searchParams.get("error_description");
+
+    const ENLACE_INVALIDO = "El enlace no es válido o ya expiró. Pide uno nuevo desde /recuperar.";
 
     async function prepararSesion() {
-      if (code) {
+      if (errorEnlace) {
+        setError(ENLACE_INVALIDO);
+      } else if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) {
-          setError("El enlace no es válido o ya expiró. Pide uno nuevo desde /recuperar.");
+        if (error) setError(ENLACE_INVALIDO);
+      } else if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (error) setError(ENLACE_INVALIDO);
+      } else {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          setError("Abre esta página desde el enlace que te llegó por correo. Si no tienes uno, pídelo en /recuperar.");
         }
       }
+      // No dejar los tokens a la vista en la barra de direcciones ni en el historial.
+      if (code || url.hash) window.history.replaceState(null, "", url.pathname);
       setListo(true);
     }
 
@@ -41,7 +66,16 @@ export function ActualizarContrasenaForm() {
     setCargando(false);
 
     if (error) {
-      setError("No se pudo actualizar la contraseña.");
+      const m = error.message.toLowerCase();
+      setError(
+        m.includes("session")
+          ? "Tu enlace ya no es válido. Pide uno nuevo desde /recuperar."
+          : m.includes("different")
+            ? "La contraseña nueva tiene que ser distinta de la anterior."
+            : m.includes("at least") || m.includes("weak")
+              ? "La contraseña es muy débil: usa al menos 8 caracteres."
+              : "No se pudo actualizar la contraseña: " + error.message,
+      );
       return;
     }
 
