@@ -107,7 +107,7 @@ Construido y probado de punta a punta contra el Supabase real (login → formula
 **Bug real encontrado y corregido**: al crear usuarios de `auth.users` directamente por SQL (bootstrap, sin `service_role` key), los campos de token (`confirmation_token`, `recovery_token`, `email_change*`, etc.) quedaron en `NULL` en vez de `''`. Eso rompía el login con `"Database error querying schema"` (500) del lado de GoTrue. Si se crean más usuarios por SQL en el futuro, hay que setear esos campos a `''` explícitamente.
 
 **Cuentas creadas**:
-- **Admin real**: `ptyhayesperanza@gmail.com`, sin contraseña utilizable todavía — se le envió el correo oficial de "restablecer contraseña" de Supabase, pero **el enlace no va a funcionar hasta que la app esté desplegada** (hoy solo corre en localhost de desarrollo). Pendiente: desplegar a Vercel o dar una contraseña temporal manualmente.
+- **Admin real**: `ptyhayesperanza@gmail.com` — ya tiene contraseña propia (la creó el 2026-09-26 con el flujo de recuperación desde el sitio publicado; ver "Deploy en Vercel").
 - **Líder de prueba** (datos ficticios, para pruebas): `lider.prueba@example.com` / `PruebaLider2026!`, asignado a "Red de Prueba" (3 miembros ficticios). Reemplazar por datos reales cuando se cargue la primera red real.
 
 **Huecos que quedaron fuera de esta pasada** (no construidos aún, no son bugs): edición/borrado de reportes ya enviados, catálogo de `materiales`/`temas_material` (está vacío — el selector de material en el formulario no tiene opciones todavía), panel de consulta para mentor/pastor/admin, y el despliegue a Vercel.
@@ -261,6 +261,7 @@ Revisión completa código ↔ base real ↔ flujo por rol. Migración nueva: [`
 - `vercel link` agrega `VERCEL_OIDC_TOKEN` a `.env.local` y crea `.vercel/` — ambos ignorados por git.
 - Verificado con el mismo recorrido por rol que la auditoría, ahora contra la URL pública.
 - **Supabase Auth → URL Configuration** (cambiado vía Management API): `site_url` pasó de `http://localhost:3000` a `https://redes-hayesperanza.vercel.app`; `uri_allow_list` (antes vacío) = `https://redes-hayesperanza.vercel.app/**,http://localhost:3000/**`. Sin esto, los correos de confirmación de registro y de recuperar contraseña mandaban a `localhost`. Ninguna otra opción de Auth se tocó. Nota: el MCP de Supabase no llega a esta config; hace falta el CLI (`supabase login`) con la cuenta dueña de la org `vannhls` — otra cuenta recibe 403.
+- **Bug corregido (PR #3)**: `/actualizar-contrasena` solo aceptaba enlaces `?code=` (PKCE, los que genera `/recuperar`). Un correo de recuperación enviado por API o desde el dashboard de Supabase llega como `#access_token=...` (implícito); el cliente PKCE no lo toma solo y `updateUser` fallaba con `Auth session missing!`. Ahora la página acepta ambos (`setSession` a mano para el implícito) — y el implícito además funciona si el correo se abre en otro dispositivo distinto al que lo pidió, cosa que PKCE no permite.
 
 ## Pendiente de decidir (no asumir, preguntar al equipo)
 
