@@ -479,6 +479,7 @@ export type Database = {
       listar_usuarios_pendientes: {
         Args: Record<PropertyKey, never>
         Returns: {
+          correo_confirmado: boolean
           created_at: string
           email: string
           id: string

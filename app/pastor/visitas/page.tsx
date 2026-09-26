@@ -1,3 +1,4 @@
+import { formatearFecha } from "@/lib/fecha";
 import { createClient } from "@/lib/supabase/server";
 import { obtenerRedesConMetricas } from "@/lib/dashboard/redesConMetricas";
 import { KpiCard } from "@/components/dashboard/KpiCard";
@@ -78,7 +79,7 @@ export default async function InvitacionesYVisitasPage() {
                   <td className="red-name">{f.nombre}</td>
                   <td>{f.redNombre}</td>
                   <td>{f.invitadoPor}</td>
-                  <td>{f.semanaInicio}</td>
+                  <td>{formatearFecha(f.semanaInicio)}</td>
                 </tr>
               ))}
             </tbody>

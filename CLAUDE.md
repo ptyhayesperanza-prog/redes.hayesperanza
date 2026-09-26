@@ -263,6 +263,25 @@ Revisión completa código ↔ base real ↔ flujo por rol. Migración nueva: [`
 - **Supabase Auth → URL Configuration** (cambiado vía Management API): `site_url` pasó de `http://localhost:3000` a `https://redes-hayesperanza.vercel.app`; `uri_allow_list` (antes vacío) = `https://redes-hayesperanza.vercel.app/**,http://localhost:3000/**`. Sin esto, los correos de confirmación de registro y de recuperar contraseña mandaban a `localhost`. Ninguna otra opción de Auth se tocó. Nota: el MCP de Supabase no llega a esta config; hace falta el CLI (`supabase login`) con la cuenta dueña de la org `vannhls` — otra cuenta recibe 403.
 - **Bug corregido (PR #3)**: `/actualizar-contrasena` solo aceptaba enlaces `?code=` (PKCE, los que genera `/recuperar`). Un correo de recuperación enviado por API o desde el dashboard de Supabase llega como `#access_token=...` (implícito); el cliente PKCE no lo toma solo y `updateUser` fallaba con `Auth session missing!`. Ahora la página acepta ambos (`setSession` a mano para el implícito) — y el implícito además funciona si el correo se abre en otro dispositivo distinto al que lo pidió, cosa que PKCE no permite.
 
+## Revisión de huecos, flujo y celular (2026-09-26)
+
+Migraciones [`0010_bloquear_semanas_futuras.sql`](supabase/migrations/0010_bloquear_semanas_futuras.sql) y [`0011_pendientes_con_correo_confirmado.sql`](supabase/migrations/0011_pendientes_con_correo_confirmado.sql) (aplicadas y verificadas).
+
+**Corregido**:
+- 🟡 **Confirmación de registro sin destino**: el enlace del correo caía en `/` con un `?code=` que nadie procesaba y la persona acababa en `/login` sin saber si confirmó. Nueva ruta [`app/auth/confirmar/route.ts`](app/auth/confirmar/route.ts) (`emailRedirectTo` en `RegistroForm`): abre la sesión si es el mismo navegador; si no, manda a `/login?aviso=confirmado` con mensaje. Redirige con `Location` **relativa** (con una absoluta armada desde `request.nextUrl`, detrás de un proxy salía el host interno `localhost`) — tampoco puede mandar a otro dominio.
+- 🟡 **Aprobar cuentas sin correo confirmado**: cualquiera puede registrarse con un correo ajeno y aparecer en "Usuarios pendientes" con ese nombre. `listar_usuarios_pendientes()` ahora devuelve `correo_confirmado`; la UI lo avisa y `asignarPerfil` lo rechaza en el servidor.
+- 🟡 **Semanas futuras**: se podía reportar una semana que aún no empieza (error de tipeo en el año), ocupándola. Bloqueado en el server action y en `crear_reporte_semanal` (hoy = hora de Panamá).
+- 🟡 **`/lider/informes/nuevo/exito?id=<cualquiera>`** decía "Reporte guardado ✓" con cualquier id. Ahora verifica que el reporte sea de la red del líder.
+- 🟡 **Fotos en celulares viejos**: `crypto.randomUUID()` no existe en Safari iOS < 15.4 ni fuera de https → la subida fallaba. Reemplazo con `getRandomValues`.
+- **Cabeceras de seguridad** en [`next.config.ts`](next.config.ts): `X-Frame-Options: DENY` (clickjacking), `nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+- **Celular**: logo blanco invisible en login/registro (ahora versión azul en móvil); campos con letra < 16px hacían zoom automático en iPhone en el formulario del informe; filas visita/invitador y petición se cortaban (clase `.fila-campos` que baja a una columna); casillas de asistencia más grandes; el modal de detalle tenía 40px de relleno en el teléfono porque la regla móvil `.modal-content` perdía contra `dialog.modal-content`. Fechas de tablas en formato legible (`formatearFecha`).
+
+**Pendiente (config de Supabase, no código)**: Supabase acepta contraseñas de **6** caracteres aunque la app pida 8 en el navegador — verificado cambiando la de la cuenta de prueba por API (se restauró). Se arregla con `password_min_length = 8` en Auth (Management API o dashboard → Authentication → Providers → Email).
+
+**Cómo se verificó**: Edge real (`playwright-core` apuntando al Edge de Windows — no hace falta descargar navegadores) contra el build local y contra producción. Auditoría móvil: 20 páginas × 4 tamaños (360/375/390/768) con login real por formulario — 0 desbordes horizontales, 0 errores de consola/red, 0 campos con zoom iOS. Flujo completo en navegador: semana futura rechazada sin perder las marcas del roster, informe con visita/ofrenda/petición, subida de foto, duplicado rechazado, detalle con foto firmada visto por líder y pastor, id falso en éxito, enlace de confirmación inválido. Los datos de prueba creados se borraron (reporte + objeto del bucket).
+
+**Ojo al automatizar pruebas del panel**: el sidebar tiene un `<button type="submit">` ("Cerrar sesión") que aparece **antes** en el DOM que el del formulario — un selector genérico `button[type=submit]` cierra la sesión. Seleccionar por nombre ("Enviar reporte").
+
 ## Pendiente de decidir (no asumir, preguntar al equipo)
 
 - Dominio: la iglesia proveerá un subdominio propio más adelante (fecha sin confirmar); mientras tanto, subdominio gratuito de Vercel.

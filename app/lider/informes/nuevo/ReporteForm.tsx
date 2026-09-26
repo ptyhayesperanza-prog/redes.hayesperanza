@@ -127,11 +127,12 @@ export function ReporteForm({
         <h3>Visitas / nuevos</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "12px" }}>
           {nuevos.map((n, i) => (
-            <div key={i} style={{ display: "flex", gap: "8px" }}>
+            <div key={i} className="fila-campos">
               <input
                 type="text"
                 name="nuevo_nombre"
                 placeholder="Nombre de la visita"
+                aria-label="Nombre de la visita"
                 value={n.nombre}
                 onChange={(e) => actualizarNuevo(i, "nombre", e.target.value)}
               />
@@ -139,7 +140,7 @@ export function ReporteForm({
                 name="nuevo_invitado_por"
                 value={n.invitadoPor}
                 onChange={(e) => actualizarNuevo(i, "invitadoPor", e.target.value)}
-                style={{ maxWidth: "12rem" }}
+                aria-label="¿Quién la invitó?"
               >
                 <option value="">¿Quién la invitó?</option>
                 {roster.map((m) => (
@@ -215,7 +216,7 @@ export function ReporteForm({
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "12px" }}>
           {peticiones.map((p, i) => (
             <div key={i} className="attendance-card">
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div className="fila-campos">
                 <select
                   value={p.miembroId}
                   onChange={(e) => actualizarPeticion(i, "miembroId", e.target.value)}

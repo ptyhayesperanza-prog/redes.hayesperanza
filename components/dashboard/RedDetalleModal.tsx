@@ -116,6 +116,7 @@ export function RedDetalleModal({
             <DataItem
               label="Semana"
               value={`${formatearFecha(detalle.semanaInicio)} – ${formatearFecha(detalle.semanaFin)}`}
+              wide
             />
             <DataItem label="Reunión" value={detalle.reunion} wide />
             {detalle.materialTitulo && (

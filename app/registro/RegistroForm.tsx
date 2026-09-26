@@ -52,6 +52,7 @@ export function RegistroForm() {
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/confirmar`,
         data: {
           nombre_completo: nombreCompleto,
           rol_sugerido: rol,

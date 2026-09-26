@@ -8,6 +8,18 @@ const MAX_FOTOS = 2;
 const MAX_BYTES = 5 * 1024 * 1024;
 const TIPOS_PERMITIDOS = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
 
+// crypto.randomUUID() no existe en navegadores de celular algo viejos
+// (p. ej. Safari de iOS < 15.4) ni fuera de https: la subida fallaba con
+// "crypto.randomUUID is not a function". getRandomValues sí está en todos.
+function idAleatorio(): string {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40; // versión 4
+  b[8] = (b[8] & 0x3f) | 0x80; // variante RFC 4122
+  const h = Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
 export function SubirFotos({ reporteId }: { reporteId: string }) {
   const [fotos, setFotos] = useState<string[]>([]);
   const [subiendo, setSubiendo] = useState(false);
@@ -48,7 +60,7 @@ export function SubirFotos({ reporteId }: { reporteId: string }) {
     // Solo se conserva la extensión: los nombres de archivo de los
     // celulares traen espacios, acentos o caracteres que el storage rechaza.
     const extension = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const ruta = `${reporteId}/${crypto.randomUUID()}.${extension || "jpg"}`;
+    const ruta = `${reporteId}/${idAleatorio()}.${extension || "jpg"}`;
 
     const { error: uploadError } = await supabase.storage
       .from("fotos-reportes")

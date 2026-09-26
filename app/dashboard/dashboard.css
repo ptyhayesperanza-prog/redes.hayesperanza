@@ -667,6 +667,21 @@
   line-height: 1.7;
 }
 
+/* Fila de 2 campos + botón (visitas, peticiones): en celular los campos
+   bajan a su propia línea en vez de apretarse y cortar el texto. */
+.panel .fila-campos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.panel .fila-campos > input,
+.panel .fila-campos > select {
+  flex: 1 1 180px;
+  min-width: 0;
+  margin-top: 0;
+}
+
 /* ---------- Detalle de reporte e informes generales ----------
    Portado del commit 019c886 ("Cambios al diseño de las 3 interfaces"),
    con los colores fijos del prototipo pasados a tokens del panel. */
@@ -972,8 +987,15 @@
   .panel .kpi-value {
     font-size: 28px;
   }
-  .panel .modal-content {
-    padding: 24px;
+  /* "dialog.modal-content" (arriba) es más específico que ".modal-content":
+     sin repetir el "dialog" esta regla nunca aplicaba y el modal seguía con
+     40px de relleno en el teléfono. */
+  .panel dialog.modal-content {
+    padding: 22px 18px;
+    width: 94%;
+  }
+  .panel .data-value {
+    font-size: 20px;
   }
   .panel .modal-data-grid {
     gap: 12px;
@@ -982,5 +1004,22 @@
   .panel .attendance-list,
   .panel .member-lists {
     grid-template-columns: 1fr;
+  }
+  /* iOS hace zoom automático al enfocar un campo con letra < 16px: el
+     líder que reporta desde el teléfono quedaba con la página agrandada. */
+  .panel input:not([type="checkbox"]),
+  .panel .attendance-card input[type="text"],
+  .panel select,
+  .panel textarea {
+    font-size: 16px;
+  }
+  /* Casillas más grandes para marcar con el dedo. */
+  .panel .attendance-card input[type="checkbox"],
+  .panel form label > input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+  }
+  .panel .attendance-card .attendance-checks {
+    gap: 14px;
   }
 }
