@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -455,6 +455,10 @@ export type Database = {
       }
     }
     Functions: {
+      crear_reporte_semanal: {
+        Args: { p_asistencia?: Json; p_peticiones?: Json; p_reporte: Json }
+        Returns: string
+      }
       listar_mentores_publico: {
         Args: Record<PropertyKey, never>
         Returns: {

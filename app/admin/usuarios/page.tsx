@@ -18,7 +18,7 @@ export default async function UsuariosPendientesPage() {
   ]);
 
   return (
-    <main className="flex min-h-full flex-1 justify-center p-4 sm:p-8">
+    <section className="page-section">
       <GlassCard className="w-full max-w-xl">
         <h1 className="font-[family-name:var(--font-fraunces)] text-2xl text-[var(--accent)]">
           Usuarios pendientes de aprobar
@@ -49,6 +49,6 @@ export default async function UsuariosPendientesPage() {
           </div>
         )}
       </GlassCard>
-    </main>
+    </section>
   );
 }

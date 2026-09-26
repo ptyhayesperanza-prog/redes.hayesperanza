@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
+// Los mismos límites están forzados en la base (trigger + config del bucket).
 const MAX_FOTOS = 2;
+const MAX_BYTES = 5 * 1024 * 1024;
+const TIPOS_PERMITIDOS = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
 
 export function SubirFotos({ reporteId }: { reporteId: string }) {
   const [fotos, setFotos] = useState<string[]>([]);
@@ -29,16 +32,27 @@ export function SubirFotos({ reporteId }: { reporteId: string }) {
       setError(`Ya subiste el máximo de ${MAX_FOTOS} fotos.`);
       return;
     }
+    if (!TIPOS_PERMITIDOS.includes(file.type)) {
+      setError("Solo se aceptan fotos JPG, PNG, WebP o HEIC.");
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setError("La foto pesa más de 5 MB.");
+      return;
+    }
 
     setError(null);
     setSubiendo(true);
 
     const supabase = createClient();
-    const ruta = `${reporteId}/${crypto.randomUUID()}-${file.name}`;
+    // Solo se conserva la extensión: los nombres de archivo de los
+    // celulares traen espacios, acentos o caracteres que el storage rechaza.
+    const extension = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const ruta = `${reporteId}/${crypto.randomUUID()}.${extension || "jpg"}`;
 
     const { error: uploadError } = await supabase.storage
       .from("fotos-reportes")
-      .upload(ruta, file);
+      .upload(ruta, file, { contentType: file.type });
 
     if (uploadError) {
       setSubiendo(false);
@@ -46,43 +60,40 @@ export function SubirFotos({ reporteId }: { reporteId: string }) {
       return;
     }
 
+    // subida_por lo fuerza un trigger en la base (siempre quien sube).
     const { data: fila, error: insertError } = await supabase
       .from("fotos_reporte")
       .insert({ reporte_id: reporteId, ruta_storage: ruta } as never)
       .select("id")
       .single();
 
-    setSubiendo(false);
-
     if (insertError || !fila) {
-      setError("La foto se subió pero no se pudo registrar.");
+      // Sin fila en fotos_reporte el archivo quedaría huérfano en el bucket.
+      await supabase.storage.from("fotos-reportes").remove([ruta]);
+      setSubiendo(false);
+      setError(
+        insertError?.message.includes("maximo 2 fotos")
+          ? `Este reporte ya tiene ${MAX_FOTOS} fotos.`
+          : "No se pudo registrar la foto. Intenta de nuevo.",
+      );
       return;
     }
+
+    setSubiendo(false);
 
     setFotos((prev) => [...prev, fila.id]);
   }
 
   return (
     <div>
-      <p className="text-sm opacity-80">
+      <p className="intro">
         Fotos de la reunión ({fotos.length}/{MAX_FOTOS})
       </p>
       {fotos.length < MAX_FOTOS && (
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFile}
-          disabled={subiendo}
-          className="mt-2 text-sm"
-        />
+        <input ref={inputRef} type="file" accept={TIPOS_PERMITIDOS.join(",")} onChange={handleFile} disabled={subiendo} />
       )}
-      {subiendo && <p className="mt-1 text-sm opacity-70">Subiendo...</p>}
-      {error && (
-        <p className="mt-1 text-sm" style={{ color: "var(--status-falto)" }}>
-          {error}
-        </p>
-      )}
+      {subiendo && <p className="intro">Subiendo...</p>}
+      {error && <p className="mensaje error">{error}</p>}
     </div>
   );
 }
