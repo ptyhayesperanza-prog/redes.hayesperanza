@@ -1,4 +1,5 @@
 "use client";
+import { formatearFecha } from "@/lib/fecha";
 
 import { dinero } from "@/lib/formato";
 import { useState } from "react";
@@ -43,7 +44,7 @@ export function InformesClient({
           <tbody>
             {informes.map((i) => (
               <tr key={i.id}>
-                <td>{i.semanaInicio}</td>
+                <td>{formatearFecha(i.semanaInicio)}</td>
                 <td>{i.totalMiembros}</td>
                 <td>{i.asistieron}</td>
                 <td>{i.visitas}</td>

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUsuarioActual } from "@/lib/supabase/get-perfil";
+import { hoyISO } from "@/lib/fecha";
 
 export type ReporteState = { error: string | null };
 
@@ -29,6 +30,11 @@ export async function crearReporteSemanal(
   const semanaFin = String(formData.get("semana_fin") ?? "");
   if (!FECHA.test(semanaInicio) || !FECHA.test(semanaFin) || semanaFin < semanaInicio) {
     return { error: "Revisa las fechas de la semana: el fin no puede ser antes del inicio." };
+  }
+  // Una semana que todavía no empieza no puede tener reunión que reportar
+  // (casi siempre es un error de tipeo en el año o el mes).
+  if (semanaInicio > hoyISO()) {
+    return { error: "La semana todavía no empieza: revisa la fecha de inicio." };
   }
 
   const { data: roster } = await supabase
@@ -135,6 +141,9 @@ export async function crearReporteSemanal(
       return {
         error: "Ya existe un reporte de tu red para esa semana. Puedes consultarlo en Mis Informes.",
       };
+    }
+    if (error?.message.includes("todavia no empieza")) {
+      return { error: "La semana todavía no empieza: revisa la fecha de inicio." };
     }
     if (error?.message.includes("reportes_semana_valida")) {
       return { error: "La semana debe durar como máximo 7 días." };

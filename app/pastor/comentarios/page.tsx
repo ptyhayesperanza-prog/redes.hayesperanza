@@ -1,3 +1,4 @@
+import { formatearFecha } from "@/lib/fecha";
 import { createClient } from "@/lib/supabase/server";
 import { obtenerRedesConMetricas } from "@/lib/dashboard/redesConMetricas";
 
@@ -92,7 +93,7 @@ export default async function ComentariosDeLideresPage() {
           {items.map((item, i) => (
             <div className="kpi-card" key={i}>
               <div className="kpi-title">
-                {item.redNombre} · {item.semanaInicio} · {item.autor}
+                {item.redNombre} · {formatearFecha(item.semanaInicio)} · {item.autor}
               </div>
               <p className="intro" style={{ margin: "10px 0 0" }}>
                 {item.texto}

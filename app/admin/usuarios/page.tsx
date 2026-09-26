@@ -42,6 +42,7 @@ export default async function UsuariosPendientesPage() {
                 rolSugerido={p.rol_sugerido}
                 redIdSugerida={p.red_id_sugerida}
                 mentorIdSugerido={p.mentor_id_sugerido}
+                correoConfirmado={p.correo_confirmado}
                 redes={redes ?? []}
                 mentores={mentores ?? []}
               />

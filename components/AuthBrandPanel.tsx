@@ -64,12 +64,14 @@ export function AuthBrandPanel() {
 export function AuthMobileHeader() {
   return (
     <div className="flex flex-col items-center gap-2 pb-6 lg:hidden">
+      {/* El logo del panel de marca es blanco (va sobre violeta); en móvil
+          el fondo es claro y se volvía invisible. Se usa la versión azul. */}
       <Image
-        src="/logo-hay-esperanza.png"
+        src="/logo-hayesperanza-azul.png"
         alt="Hay Esperanza"
-        width={48}
-        height={48}
-        className="h-12 w-12"
+        width={600}
+        height={320}
+        className="h-16 w-auto"
         priority
       />
       <p className="font-[family-name:var(--font-fraunces)] text-lg font-medium text-[var(--accent)]">

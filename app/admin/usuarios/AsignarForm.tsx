@@ -20,6 +20,7 @@ export function AsignarForm({
   rolSugerido,
   redIdSugerida,
   mentorIdSugerido,
+  correoConfirmado,
   redes,
   mentores,
 }: {
@@ -29,6 +30,7 @@ export function AsignarForm({
   rolSugerido: string | null;
   redIdSugerida: string | null;
   mentorIdSugerido: string | null;
+  correoConfirmado: boolean;
   redes: Red[];
   mentores: Mentor[];
 }) {
@@ -55,6 +57,11 @@ export function AsignarForm({
       {rol === "mentor" && <input type="hidden" name="mentor_id" value={mentorId ?? ""} />}
 
       <p className="text-sm opacity-80">{email}</p>
+      {!correoConfirmado && (
+        <p className="text-xs" role="note" style={{ color: "var(--status-atrasado, #d97706)" }}>
+          Todavía no confirma su correo: no se puede aprobar hasta que abra el enlace que le llegó.
+        </p>
+      )}
       {rolSugerido && (
         <p className="text-xs opacity-60">
           Sugirió: {rolSugerido}
@@ -137,7 +144,7 @@ export function AsignarForm({
 
       <button
         type="submit"
-        disabled={enviando || (rol === "lider" && !redId) || (rol === "mentor" && !mentorId)}
+        disabled={enviando || !correoConfirmado || (rol === "lider" && !redId) || (rol === "mentor" && !mentorId)}
         className="mt-1 rounded-lg px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] disabled:opacity-40"
         style={{ background: "var(--accent)" }}
       >

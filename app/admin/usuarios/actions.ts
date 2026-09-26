@@ -31,6 +31,17 @@ export async function asignarPerfil(_prev: AsignarState, formData: FormData): Pr
   if (rol === "mentor" && !mentorId) return { error: "Elige la mentoría." };
 
   const supabase = await createClient();
+
+  // Solo se aprueba a alguien que está en la lista de pendientes y ya
+  // confirmó su correo: si no, cualquiera podría registrarse con el correo
+  // de otra persona y quedar aprobado con ese nombre.
+  const { data: pendientes } = await supabase.rpc("listar_usuarios_pendientes");
+  const pendiente = (pendientes ?? []).find((p) => p.id === id);
+  if (!pendiente) return { error: "Esa cuenta ya no está pendiente de aprobación." };
+  if (!pendiente.correo_confirmado) {
+    return { error: "Esta persona todavía no confirma su correo. Pídele que abra el enlace que le llegó." };
+  }
+
   const { error } = await supabase.from("perfiles").insert({
     id,
     nombre_completo: nombreCompleto,

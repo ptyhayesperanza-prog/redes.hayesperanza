@@ -1,4 +1,5 @@
 "use client";
+import { formatearFecha } from "@/lib/fecha";
 
 import { dinero } from "@/lib/formato";
 import { useState } from "react";
@@ -44,7 +45,7 @@ export function ReportesTable({ filas }: { filas: FilaReporte[] }) {
                   <div className="red-name">{f.redNombre}</div>
                   <div className="red-leader">{f.liderLabel}</div>
                 </td>
-                <td>{f.semanaInicio}</td>
+                <td>{formatearFecha(f.semanaInicio)}</td>
                 <td>{f.totalMiembros}</td>
                 <td>{f.asistieron}</td>
                 <td>{f.visitas}</td>

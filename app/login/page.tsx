@@ -3,7 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { AuthBrandPanel, AuthMobileHeader } from "@/components/AuthBrandPanel";
 import { LoginForm } from "./LoginForm";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ aviso?: string }>;
+}) {
+  const { aviso } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -25,6 +30,11 @@ export default async function LoginPage() {
           <p className="mt-1 mb-6 text-sm opacity-70">
             Ingresa tus datos para continuar en tu red.
           </p>
+          {aviso === "confirmado" && (
+            <p className="mb-6 text-sm" role="status" style={{ color: "var(--status-al-dia)" }}>
+              Tu correo quedó confirmado. Inicia sesión con tu contraseña.
+            </p>
+          )}
           <LoginForm />
         </div>
       </div>
