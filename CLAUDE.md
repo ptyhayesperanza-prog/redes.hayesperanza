@@ -253,6 +253,15 @@ Revisión completa código ↔ base real ↔ flujo por rol. Migración nueva: [`
 
 **Pendiente, no es código**: el `git pull` de `019c886` va a chocar (modify/delete) con el borrado local sin commitear de los HTML de prototipo — al commitear, resolver quedándose con el borrado. Sigue apagada la protección de contraseñas filtradas (dashboard de Supabase). El reporte huérfano de prueba (`3bfa05ef…`, Red de Prueba) ya se borró (2026-09-25, con confirmación).
 
+## Deploy en Vercel (2026-09-26)
+
+- **URL pública**: https://redes-hayesperanza.vercel.app — equipo de Vercel `hay-esperanza` (plan Hobby), proyecto `redes-hayesperanza`, conectado al repo de GitHub (cada push a `main` publica solo). Las URLs largas `*-hay-esperanza.vercel.app` piden login de Vercel (protección de deployments del equipo) — es normal, la que se comparte es la de arriba.
+- **Variables de entorno**: solo `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, tipo **Config** (no Secret) en Production/Preview/Development. Deben ser Config: el prefijo `NEXT_PUBLIC_` las expone al navegador a propósito, y la clave publishable está hecha para eso (la protección real es RLS). **No** conectar la integración de Supabase que ofrece Vercel: crea un proyecto de Supabase nuevo/vacío.
+- **Primer deploy dio 500 en todas las páginas** (solo cargaban logo/favicon, que no pasan por `proxy.ts`): faltaban esas variables. Al cambiarlas hay que hacer **Redeploy** — las `NEXT_PUBLIC_` se incrustan en el build, no se leen en tiempo de ejecución.
+- `vercel link` agrega `VERCEL_OIDC_TOKEN` a `.env.local` y crea `.vercel/` — ambos ignorados por git.
+- Verificado con el mismo recorrido por rol que la auditoría, ahora contra la URL pública.
+- **Supabase Auth → URL Configuration** (cambiado vía Management API): `site_url` pasó de `http://localhost:3000` a `https://redes-hayesperanza.vercel.app`; `uri_allow_list` (antes vacío) = `https://redes-hayesperanza.vercel.app/**,http://localhost:3000/**`. Sin esto, los correos de confirmación de registro y de recuperar contraseña mandaban a `localhost`. Ninguna otra opción de Auth se tocó. Nota: el MCP de Supabase no llega a esta config; hace falta el CLI (`supabase login`) con la cuenta dueña de la org `vannhls` — otra cuenta recibe 403.
+
 ## Pendiente de decidir (no asumir, preguntar al equipo)
 
 - Dominio: la iglesia proveerá un subdominio propio más adelante (fecha sin confirmar); mientras tanto, subdominio gratuito de Vercel.
