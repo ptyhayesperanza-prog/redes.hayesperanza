@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { CardPicker } from "@/components/CardPicker";
 import { colorMentorHex } from "@/lib/colorMentor";
 import { asignarPerfil } from "./actions";
@@ -41,12 +41,11 @@ export function AsignarForm({
     redes.find((r) => r.id === redIdSugerida)?.mentor_id ?? null,
   );
   const [mentorId, setMentorId] = useState<string | null>(mentorIdSugerido);
-  const [enviando, setEnviando] = useState(false);
+  const [estado, formAction, enviando] = useActionState(asignarPerfil, { error: null });
 
   return (
     <form
-      action={asignarPerfil}
-      onSubmit={() => setEnviando(true)}
+      action={formAction}
       className="flex flex-col gap-3 rounded-xl border p-4"
       style={{ borderColor: "var(--surface-border)" }}
     >
@@ -128,6 +127,12 @@ export function AsignarForm({
           onSelect={setMentorId}
           numbered
         />
+      )}
+
+      {estado.error && (
+        <p className="text-sm" role="alert" style={{ color: "var(--status-falto, #e11d48)" }}>
+          {estado.error}
+        </p>
       )}
 
       <button
