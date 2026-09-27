@@ -112,6 +112,15 @@
   flex-direction: column;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
   z-index: 10;
+  /* Fijo al alto de la pantalla: antes se estiraba con el contenido (4000+
+     px en el panel del pastor), así que al bajar desaparecía el menú y
+     "Cerrar sesión" quedaba al final de la página. En celular se anula
+     abajo (ahí el menú va arriba del contenido). */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
 }
 
 .panel .logo-container {
@@ -242,7 +251,9 @@
 
 .panel .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  /* 190px (antes 240): con 240 solo cabían 3 tarjetas entre 1280 y 1536px
+     de pantalla y la 4ª quedaba sola en otra fila. */
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 25px;
   margin-bottom: 40px;
 }
@@ -682,6 +693,19 @@
   margin-top: 0;
 }
 
+/* Usuarios pendientes (admin): una tarjeta por solicitud, en cuadrícula. */
+.panel .pendientes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.panel .pendiente-card {
+  background: var(--panel-white);
+  border-color: rgba(159, 162, 214, 0.35) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
 /* ---------- Detalle de reporte e informes generales ----------
    Portado del commit 019c886 ("Cambios al diseño de las 3 interfaces"),
    con los colores fijos del prototipo pasados a tokens del panel. */
@@ -950,6 +974,9 @@
   }
   .panel .sidebar {
     width: 100%;
+    position: static;
+    height: auto;
+    overflow-y: visible;
   }
   .panel .logo-container {
     padding: 12px;

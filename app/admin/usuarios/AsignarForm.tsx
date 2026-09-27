@@ -48,7 +48,7 @@ export function AsignarForm({
   return (
     <form
       action={formAction}
-      className="flex flex-col gap-3 rounded-xl border p-4"
+      className="pendiente-card flex flex-col gap-3 rounded-xl border p-4"
       style={{ borderColor: "var(--surface-border)" }}
     >
       <input type="hidden" name="id" value={usuarioId} />
