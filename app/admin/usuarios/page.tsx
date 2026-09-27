@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getUsuarioActual } from "@/lib/supabase/get-perfil";
 import { createClient } from "@/lib/supabase/server";
-import { GlassCard } from "@/components/GlassCard";
 import { AsignarForm } from "./AsignarForm";
 
 export default async function UsuariosPendientesPage() {
@@ -17,39 +16,43 @@ export default async function UsuariosPendientesPage() {
     supabase.from("mentores").select("id, nombre, color").order("nombre"),
   ]);
 
+  // Antes era una GlassCard de 576px con el estilo del login metida dentro
+  // del panel: en computadora ocupaba menos de la mitad del ancho. Ahora usa
+  // el mismo encabezado que el resto del panel y una cuadrícula de tarjetas.
   return (
     <section className="page-section">
-      <GlassCard className="w-full max-w-xl">
-        <h1 className="font-[family-name:var(--font-fraunces)] text-2xl text-[var(--accent)]">
-          Usuarios pendientes de aprobar
-        </h1>
-        <p className="mt-1 mb-6 text-sm opacity-80">
-          Se registraron pero todavía no tienen rol ni red asignada — sin
-          eso no pueden ver ningún dato. La sugerencia es lo que ellos
-          indicaron al registrarse; confírmala o cámbiala antes de asignar.
+      <header className="header-top">
+        <h2>Usuarios pendientes de aprobar</h2>
+        <p>
+          Se registraron pero todavía no tienen rol ni red asignada — sin eso no pueden ver
+          ningún dato. La sugerencia es lo que ellos indicaron al registrarse; confírmala o
+          cámbiala antes de asignar.
         </p>
+      </header>
 
-        {!pendientes || pendientes.length === 0 ? (
-          <p className="text-sm opacity-70">No hay nadie pendiente.</p>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {pendientes.map((p) => (
-              <AsignarForm
-                key={p.id}
-                usuarioId={p.id}
-                email={p.email ?? ""}
-                nombreSugerido={p.nombre_sugerido}
-                rolSugerido={p.rol_sugerido}
-                redIdSugerida={p.red_id_sugerida}
-                mentorIdSugerido={p.mentor_id_sugerido}
-                correoConfirmado={p.correo_confirmado}
-                redes={redes ?? []}
-                mentores={mentores ?? []}
-              />
-            ))}
-          </div>
-        )}
-      </GlassCard>
+      {!pendientes || pendientes.length === 0 ? (
+        <div className="placeholder-content">
+          <h3>No hay nadie pendiente</h3>
+          <p>Cuando alguien se registre en la página, aparecerá aquí para que lo apruebes.</p>
+        </div>
+      ) : (
+        <div className="pendientes-grid">
+          {pendientes.map((p) => (
+            <AsignarForm
+              key={p.id}
+              usuarioId={p.id}
+              email={p.email ?? ""}
+              nombreSugerido={p.nombre_sugerido}
+              rolSugerido={p.rol_sugerido}
+              redIdSugerida={p.red_id_sugerida}
+              mentorIdSugerido={p.mentor_id_sugerido}
+              correoConfirmado={p.correo_confirmado}
+              redes={redes ?? []}
+              mentores={mentores ?? []}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
